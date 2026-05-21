@@ -250,7 +250,13 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS")
+CORS_ALLOWED_ORIGINS = _merge_unique(
+    env_list("CORS_ALLOWED_ORIGINS")
+    + [
+        env_url_origin("APP_URL"),
+        env_url_origin("DIGITALOCEAN_APP_URL"),
+    ]
+)
 CORS_ALLOW_ALL_ORIGINS = DEBUG and not CORS_ALLOWED_ORIGINS
 CSRF_TRUSTED_ORIGINS = _merge_unique(
     env_list("CSRF_TRUSTED_ORIGINS")
