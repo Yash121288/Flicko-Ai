@@ -120,3 +120,5 @@ Included helper scripts:
 
 - `deploy/digitalocean/bootstrap.sh`
 - `deploy/digitalocean/update.sh`
+- `deploy/digitalocean/backup.sh`
+- `deploy/digitalocean/health-smoke.sh`

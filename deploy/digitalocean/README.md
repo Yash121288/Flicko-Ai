@@ -33,7 +33,7 @@ SSH into the droplet and run:
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3-venv python3-pip nginx certbot python3-certbot-nginx git ufw
+sudo apt install -y python3-venv python3-pip nginx certbot python3-certbot-nginx git ufw postgresql-client
 ```
 
 Optional firewall:
@@ -195,6 +195,60 @@ Or use the included update script:
 ```bash
 sudo bash /srv/flicko/backend/deploy/digitalocean/update.sh
 ```
+
+## 11. Backup
+
+The included backup script writes a compressed PostgreSQL dump plus deployment metadata:
+
+```bash
+sudo bash /srv/flicko/backend/deploy/digitalocean/backup.sh
+```
+
+Outputs go under:
+
+```text
+/var/backups/flicko/<timestamp>/
+```
+
+Artifacts include:
+
+- `postgres.dump`
+- `git_sha.txt`
+- `requirements.lock`
+- `migrations.txt`
+- `report_file_manifest.json`
+
+## 12. Health smoke
+
+Use the included smoke script after deploys or restores:
+
+```bash
+sudo PUBLIC_HEALTH_URL=https://api.example.com/api/auth/health/ \
+  bash /srv/flicko/backend/deploy/digitalocean/health-smoke.sh
+```
+
+This checks:
+
+- systemd service active
+- local health endpoint
+- public TLS health endpoint if provided
+- expected DB state
+- expected storage mode
+
+## 13. Restore planning
+
+Use:
+
+```text
+deploy/digitalocean/restore-checklist.md
+```
+
+That document explains how to recover:
+
+- Droplet-only failure
+- DB restore from `pg_restore`
+- post-restore report-file validation
+- Cloudinary limitations
 
 ## Operational notes
 

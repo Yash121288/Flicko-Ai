@@ -14,7 +14,7 @@ if [[ "${EUID}" -ne 0 ]]; then
 fi
 
 apt-get update
-apt-get install -y python3-venv python3-pip nginx certbot python3-certbot-nginx git ufw
+apt-get install -y python3-venv python3-pip nginx certbot python3-certbot-nginx git ufw postgresql-client
 
 if ! id "${APP_USER}" >/dev/null 2>&1; then
   adduser --disabled-password --gecos "" "${APP_USER}"
