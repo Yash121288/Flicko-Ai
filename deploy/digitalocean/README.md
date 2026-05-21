@@ -144,6 +144,12 @@ View logs:
 sudo journalctl -u flixo -f
 ```
 
+If you want to automate the first boot instead of running each step manually:
+
+```bash
+sudo DOMAIN=api.example.com bash deploy/digitalocean/bootstrap.sh
+```
+
 ## 8. Install Nginx reverse proxy
 
 ```bash
@@ -184,6 +190,12 @@ sudo systemctl restart flixo
 sudo systemctl status flixo
 ```
 
+Or use the included update script:
+
+```bash
+sudo bash /srv/flicko/backend/deploy/digitalocean/update.sh
+```
+
 ## Operational notes
 
 1. Report PDFs and HTML files are fetched through authenticated API routes:
@@ -193,3 +205,13 @@ sudo systemctl status flixo
 3. `CLOUDINARY_DELIVERY_TYPE=authenticated` is the correct default for health-report privacy.
 4. Supabase should remain the only primary relational database.
 5. Do not store production `.env`, local SQLite files, or `media/` in git.
+
+## Optional log rotation
+
+Gunicorn currently logs to journald through systemd, so app logs are not file-rotated here.
+
+If you later switch to file-based logs under `/var/log/flicko/`, use:
+
+```bash
+sudo cp deploy/digitalocean/logrotate-flixo.conf.example /etc/logrotate.d/flixo
+```

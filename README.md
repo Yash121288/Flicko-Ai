@@ -115,3 +115,8 @@ Use that runbook if you want:
 - Supabase PostgreSQL
 - Cloudinary report storage
 - Gunicorn + Nginx + Let's Encrypt
+
+Included helper scripts:
+
+- `deploy/digitalocean/bootstrap.sh`
+- `deploy/digitalocean/update.sh`
