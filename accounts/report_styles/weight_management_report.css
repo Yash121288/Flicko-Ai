@@ -1,0 +1,2 @@
+.report-weight_management { --accent: #20a84a; --accent-rgb: 32,168,74; --accent-soft: #e9fbef; --score: 78; }
+.report-weight_management .hero-panel::after { content: "Weight, BMI, meals and activity"; }

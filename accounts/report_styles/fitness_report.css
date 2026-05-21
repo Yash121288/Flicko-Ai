@@ -1,0 +1,3 @@
+﻿.report-fitness { --accent: #168b54; --accent-rgb: 22,139,84; --accent-soft: #eaf7ee; --score: 80; }
+.report-fitness .hero-panel::after { content: "Training, recovery and progress"; }
+

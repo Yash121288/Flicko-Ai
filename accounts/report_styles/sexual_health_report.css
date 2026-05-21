@@ -1,0 +1,3 @@
+﻿.report-sexual_health { --accent: #147e68; --accent-rgb: 20,126,104; --accent-soft: #e8f5f2; --score: 78; }
+.report-sexual_health .hero-panel::after { content: "Private, confidential wellness report"; }
+

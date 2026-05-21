@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.py[cod]
+db.sqlite3
+media/
+tmp/
+.pytest_cache/
+.mypy_cache/

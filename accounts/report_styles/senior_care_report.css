@@ -1,0 +1,3 @@
+﻿.report-senior_care { --accent: #178b5e; --accent-rgb: 23,139,94; --accent-soft: #eaf6ef; --score: 79; }
+.report-senior_care .hero-panel::after { content: "Medicine, mobility and safety"; }
+

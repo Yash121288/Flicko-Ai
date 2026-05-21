@@ -1,0 +1,3 @@
+﻿.report-diabetes_type_2 { --accent: #149447; --accent-rgb: 20,148,71; --accent-soft: #eaf7ee; --score: 82; }
+.report-diabetes_type_2 .hero-panel::after { content: "Sugar trend, meals and walking"; }
+

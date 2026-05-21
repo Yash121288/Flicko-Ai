@@ -1,0 +1,3 @@
+﻿.report-acidity_and_bloating { --accent: #208b56; --accent-rgb: 32,139,86; --accent-soft: #edf7ef; --score: 75; }
+.report-acidity_and_bloating .hero-panel::after { content: "Reflux, bloating and meal triggers"; }
+

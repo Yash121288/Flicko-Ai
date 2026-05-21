@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ report.title }}</title>
+  <style>{{ common_css|safe }}</style>
+  <style>{{ report_css|safe }}</style>
+</head>
+<body class="report-shell report-{{ slug }}" style="--score: {{ score_css }};">
+  <main class="report-pages">
+    <section class="report-page cover-page">
+      <header class="report-brand">
+        <div class="brand-lockup">
+          {% if logo_uri %}<img src="{{ logo_uri }}" alt="Flicko AI">{% endif %}
+          <div>
+            <strong>Flicko <span>AI</span></strong>
+            <small>Your Health Assistant</small>
+          </div>
+        </div>
+        <div class="report-date">
+          <span>Doctor-ready PDF</span>
+          <strong>{{ report_date }}</strong>
+        </div>
+      </header>
+
+      <section class="hero-panel">
+        <div class="hero-copy">
+          <p class="eyebrow">AI-guided progress report</p>
+          <h1>{{ template.title }}</h1>
+          <p>{{ template.subtitle }}</p>
+          <div class="hero-chip">
+            <span></span>
+            Prepared for <strong>{{ generated_for }}</strong>
+          </div>
+        </div>
+
+        <div class="hero-stage">
+          <div class="hero-halo"></div>
+          {% if coach_uri %}<img class="coach-img" src="{{ coach_uri }}" alt="Flicko AI coach">{% endif %}
+          {% if scale_uri %}<img class="scale-img" src="{{ scale_uri }}" alt="Health scale">{% endif %}
+          {% if meal_uri %}<img class="meal-img" src="{{ meal_uri }}" alt="Healthy meal">{% endif %}
+          {% if problem_uri %}<img class="problem-img" src="{{ problem_uri }}" alt="{{ template.problem_name }}">{% endif %}
+          {% if has_score %}
+            <div class="hero-score">
+              <span>{{ template.score_label }}</span>
+              <strong>{{ score }}</strong>
+              <small>/100</small>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      {% if executive_highlights %}
+        <section class="executive-strip">
+          {% for item in executive_highlights %}
+            <article>
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }}</strong>
+            </article>
+          {% endfor %}
+        </section>
+      {% endif %}
+
+      <section class="report-grid first-grid page-box-grid">
+        {% for box in cover_page.boxes %}
+          <article class="report-card {% if box.tone == 'warning' %}warning-card{% endif %}">
+            <h2><span class="section-icon">{{ box.badge }}</span>{{ box.title }}</h2>
+            {% if box.lead %}<p class="box-lead">{{ box.lead }}</p>{% endif %}
+
+            {% if box.kind == "metrics" %}
+              <div class="data-list metric-list">
+                {% for item in box.metrics %}
+                  <div class="{% if item.missing %}metric-missing{% endif %}">
+                    <span>{{ item.label }}</span>
+                    <strong>{{ item.value }}</strong>
+                    <i></i>
+                  </div>
+                {% endfor %}
+              </div>
+            {% elif box.kind == "timeline" %}
+              <div class="timeline">
+                {% for item in box.items %}
+                  <div><i></i><span>{{ item }}</span></div>
+                {% endfor %}
+              </div>
+            {% elif box.kind == "doctor" %}
+              <ul class="clean-list compact-list">
+                {% for item in box.items %}
+                  <li>{{ item }}</li>
+                {% endfor %}
+              </ul>
+            {% elif box.kind == "table" or box.kind == "meal_plan" or box.kind == "week_plan" %}
+              <div class="report-table-wrap">
+                <table class="report-table report-table-{{ box.kind }}">
+                  <thead>
+                    <tr>
+                      {% for header in box.headers %}
+                        <th>{{ header }}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in box.rows %}
+                      <tr>
+                        {% for cell in row %}
+                          <td>{{ cell }}</td>
+                        {% endfor %}
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% if box.note %}<p class="table-note">{{ box.note }}</p>{% endif %}
+            {% else %}
+              <ul class="clean-list compact-list">
+                {% for item in box.items %}
+                  <li>{{ item }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </section>
+    </section>
+
+    {% for page in detail_pages %}
+      <section class="report-page detail-page">
+        <header class="page-heading">
+          <div>
+            <p class="eyebrow">{{ page.eyebrow }}</p>
+            <h1>{{ page.title }}</h1>
+          </div>
+          <span>{{ page.chip }}</span>
+        </header>
+
+        <section class="report-grid first-grid page-box-grid">
+          {% for box in page.boxes %}
+            <article class="report-card {% if box.tone == 'warning' %}warning-card{% endif %}">
+              <h2><span class="section-icon">{{ box.badge }}</span>{{ box.title }}</h2>
+              {% if box.lead %}<p class="box-lead">{{ box.lead }}</p>{% endif %}
+
+              {% if box.kind == "metrics" %}
+                <div class="data-list metric-list">
+                  {% for item in box.metrics %}
+                    <div class="{% if item.missing %}metric-missing{% endif %}">
+                      <span>{{ item.label }}</span>
+                      <strong>{{ item.value }}</strong>
+                      <i></i>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% elif box.kind == "timeline" %}
+                <div class="timeline">
+                  {% for item in box.items %}
+                    <div><i></i><span>{{ item }}</span></div>
+                  {% endfor %}
+                </div>
+              {% elif box.kind == "doctor" %}
+                <ul class="clean-list compact-list">
+                  {% for item in box.items %}
+                    <li>{{ item }}</li>
+                  {% endfor %}
+                </ul>
+              {% elif box.kind == "table" or box.kind == "meal_plan" or box.kind == "week_plan" %}
+                <div class="report-table-wrap">
+                  <table class="report-table report-table-{{ box.kind }}">
+                    <thead>
+                      <tr>
+                        {% for header in box.headers %}
+                          <th>{{ header }}</th>
+                        {% endfor %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for row in box.rows %}
+                        <tr>
+                          {% for cell in row %}
+                            <td>{{ cell }}</td>
+                          {% endfor %}
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                {% if box.note %}<p class="table-note">{{ box.note }}</p>{% endif %}
+              {% else %}
+                <ul class="clean-list compact-list">
+                  {% for item in box.items %}
+                    <li>{{ item }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </article>
+          {% endfor %}
+        </section>
+      </section>
+    {% endfor %}
+
+    <section class="report-page final-page">
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">Conversation Evidence</p>
+          <h1>Saved Notes, Dashboard Values, and Safety</h1>
+        </div>
+        <span>{{ template.problem_name }}</span>
+      </header>
+
+      <section class="report-grid two-column final-grid">
+        <article class="report-card">
+          <h2>Dashboard Values</h2>
+          <div class="data-list">
+            {% for label, value in dashboard_items %}
+              <div>
+                <span>{{ label }}</span>
+                <strong>{{ value }}</strong>
+                <i></i>
+              </div>
+            {% endfor %}
+          </div>
+        </article>
+
+        <article class="report-card">
+          <h2>Condition Focus</h2>
+          <div class="pill-list">
+            {% for item in focus_items %}
+              <span>{{ item }}</span>
+            {% endfor %}
+          </div>
+        </article>
+      </section>
+
+      <section class="report-grid two-column final-grid">
+        <article class="report-card transcript-card">
+          <h2>Recent Conversation Notes</h2>
+          {% for note in transcript_notes %}
+            <p>{{ note }}</p>
+          {% endfor %}
+        </article>
+
+        <article class="report-card">
+          <h2>Missing Information</h2>
+          <ul class="clean-list compact-list">
+            {% for item in missing_info_items %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </article>
+      </section>
+
+      <footer class="large-safety final-safety">
+        <strong>Safety boundary</strong>
+        <p>{{ safety_boundary }}</p>
+      </footer>
+    </section>
+  </main>
+</body>
+</html>

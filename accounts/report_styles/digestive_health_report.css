@@ -1,0 +1,3 @@
+﻿.report-digestive_health { --accent: #208b56; --accent-rgb: 32,139,86; --accent-soft: #edf7ef; --score: 75; }
+.report-digestive_health .hero-panel::after { content: "Gut comfort and food triggers"; }
+

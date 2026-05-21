@@ -1,0 +1,3 @@
+﻿.report-other_problem { --accent: #149447; --accent-rgb: 20,148,71; --accent-soft: #eaf7ee; --score: 78; }
+.report-other_problem .hero-panel::after { content: "Custom health intake and next steps"; }
+

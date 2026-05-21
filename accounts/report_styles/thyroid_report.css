@@ -1,0 +1,3 @@
+﻿.report-thyroid { --accent: #1b8f72; --accent-rgb: 27,143,114; --accent-soft: #e8f7f3; --score: 77; }
+.report-thyroid .hero-panel::after { content: "TSH, energy and medicine timing"; }
+

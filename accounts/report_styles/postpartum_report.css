@@ -1,0 +1,3 @@
+﻿.report-postpartum { --accent: #15976a; --accent-rgb: 21,151,106; --accent-soft: #e8f8f1; --score: 74; }
+.report-postpartum .hero-panel::after { content: "Recovery, sleep and mood support"; }
+

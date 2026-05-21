@@ -1,0 +1,3 @@
+﻿.report-stress_and_mood { --accent: #147f6a; --accent-rgb: 20,127,106; --accent-soft: #e7f5f2; --score: 72; }
+.report-stress_and_mood .hero-panel::after { content: "Mood pattern and calm plan"; }
+

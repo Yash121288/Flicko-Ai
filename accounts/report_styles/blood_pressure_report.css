@@ -1,0 +1,3 @@
+﻿.report-blood_pressure { --accent: #188b5a; --accent-rgb: 24,139,90; --accent-soft: #e9f6ef; --score: 80; }
+.report-blood_pressure .hero-panel::after { content: "BP, salt, stress and medicine"; }
+

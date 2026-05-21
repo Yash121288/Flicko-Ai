@@ -1,0 +1,3 @@
+﻿.report-autoimmune_support { --accent: #17876b; --accent-rgb: 23,135,107; --accent-soft: #e8f6f3; --score: 74; }
+.report-autoimmune_support .hero-panel::after { content: "Flare triggers and pacing plan"; }
+

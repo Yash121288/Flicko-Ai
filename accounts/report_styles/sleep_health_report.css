@@ -1,0 +1,3 @@
+﻿.report-sleep_health { --accent: #167e64; --accent-rgb: 22,126,100; --accent-soft: #e8f5f1; --score: 73; }
+.report-sleep_health .hero-panel::after { content: "Sleep rhythm and recovery"; }
+

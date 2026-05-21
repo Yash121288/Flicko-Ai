@@ -1,0 +1,3 @@
+﻿.report-skin_and_hair { --accent: #168d63; --accent-rgb: 22,141,99; --accent-soft: #eaf7f0; --score: 76; }
+.report-skin_and_hair .hero-panel::after { content: "Skin, hair and nutrition clues"; }
+

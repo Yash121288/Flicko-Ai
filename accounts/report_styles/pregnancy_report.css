@@ -1,0 +1,3 @@
+﻿.report-pregnancy { --accent: #159a70; --accent-rgb: 21,154,112; --accent-soft: #e8f8f1; --score: 84; }
+.report-pregnancy .hero-panel::after { content: "Pregnancy wellness and safety"; }
+

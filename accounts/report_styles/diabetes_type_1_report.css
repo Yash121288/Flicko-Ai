@@ -1,0 +1,3 @@
+﻿.report-diabetes_type_1 { --accent: #128e4a; --accent-rgb: 18,142,74; --accent-soft: #e8f7ec; --score: 82; }
+.report-diabetes_type_1 .hero-panel::after { content: "Glucose safety and insulin routine"; }
+
