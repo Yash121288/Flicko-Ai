@@ -3,8 +3,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 
+from .views import favicon, service_root
+
 
 urlpatterns = [
+    path("", service_root, name="service-root"),
+    path("favicon.ico", favicon, name="favicon"),
     path("admin/", admin.site.urls),
     path("api/auth/", include("accounts.urls")),
 ]

@@ -1903,6 +1903,18 @@ class AuthFlowTests(TestCase):
         self.assertEqual(response.data["database"], "ok")
         self.assertEqual(response.data["storage"], "local")
 
+    def test_service_root_returns_backend_status_payload(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["service"], "Flicko AI backend")
+        self.assertEqual(response.json()["status"], "ok")
+        self.assertIn("/api/auth/health/", response.json()["health_url"])
+
+    def test_favicon_route_returns_empty_success(self):
+        response = self.client.get("/favicon.ico")
+        self.assertEqual(response.status_code, 204)
+
     def test_report_urls_use_authenticated_backend_download_route(self):
         user = User.objects.create_user(
             username="report-owner",
