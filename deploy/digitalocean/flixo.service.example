@@ -1,0 +1,18 @@
+[Unit]
+Description=Flicko Django backend
+After=network.target
+
+[Service]
+User=deploy
+Group=www-data
+WorkingDirectory=/srv/flicko/backend
+EnvironmentFile=/srv/flicko/backend/.env
+ExecStart=/srv/flicko/backend/.venv/bin/gunicorn flixo_backend.wsgi:application -c /srv/flicko/backend/gunicorn.conf.py
+Restart=always
+RestartSec=5
+KillSignal=SIGQUIT
+TimeoutStopSec=30
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

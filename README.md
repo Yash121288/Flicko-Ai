@@ -100,3 +100,18 @@ python manage.py migrate
 python manage.py collectstatic --noinput
 gunicorn flixo_backend.wsgi:application -c gunicorn.conf.py
 ```
+
+### DigitalOcean Droplet deploy
+
+Production-ready DigitalOcean files are included here:
+
+- `deploy/digitalocean/README.md`
+- `deploy/digitalocean/flixo.service.example`
+- `deploy/digitalocean/nginx.conf.example`
+
+Use that runbook if you want:
+
+- DigitalOcean Droplet
+- Supabase PostgreSQL
+- Cloudinary report storage
+- Gunicorn + Nginx + Let's Encrypt
