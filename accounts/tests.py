@@ -1894,6 +1894,14 @@ class AuthFlowTests(TestCase):
         self.assertIn("report_ready", intake)
         self.assertIn("timeline_gaps", intake)
 
+    def test_health_endpoint_reports_runtime_storage_mode(self):
+        response = self.client.get(reverse("health"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["status"], "ok")
+        self.assertEqual(response.data["database"], "ok")
+        self.assertEqual(response.data["storage"], "local")
+
     def test_mobile_intake_schema_asset_matches_backend_source_of_truth(self):
         asset_path = (
             Path(__file__).resolve().parents[3]

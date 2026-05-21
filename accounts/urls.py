@@ -12,6 +12,7 @@ from .views import (
     HealthProtocolDetailView,
     HealthProtocolEngineContextView,
     GoogleLoginView,
+    SystemHealthView,
     LoginView,
     MeView,
     PasswordResetConfirmView,
@@ -21,6 +22,7 @@ from .views import (
 
 
 urlpatterns = [
+    path("health/", SystemHealthView.as_view(), name="health"),
     path("register/start/", RegisterStartView.as_view(), name="register-start"),
     path("register/verify/", RegisterVerifyView.as_view(), name="register-verify"),
     path("login/", LoginView.as_view(), name="login"),

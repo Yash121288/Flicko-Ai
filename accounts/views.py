@@ -4,7 +4,8 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from django.db import transaction
+from django.db import connections, transaction
+from django.db.utils import OperationalError
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import status, throttling
@@ -79,6 +80,31 @@ class OTPThrottle(throttling.ScopedRateThrottle):
 
 class LoginThrottle(throttling.ScopedRateThrottle):
     scope = "login"
+
+
+class SystemHealthView(APIView):
+    authentication_classes: list[type] = []
+    permission_classes: list[type] = []
+
+    def get(self, request):
+        database_ok = True
+        try:
+            with connections["default"].cursor() as cursor:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+        except OperationalError:
+            database_ok = False
+
+        status_code = status.HTTP_200_OK if database_ok else status.HTTP_503_SERVICE_UNAVAILABLE
+        return Response(
+            {
+                "status": "ok" if database_ok else "degraded",
+                "database": "ok" if database_ok else "error",
+                "storage": "cloudinary" if settings.USE_CLOUDINARY_MEDIA else "local",
+                "debug": settings.DEBUG,
+            },
+            status=status_code,
+        )
 
 
 def token_payload(user: User) -> dict[str, object]:

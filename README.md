@@ -30,3 +30,62 @@ flutter run --dart-define=FLICKO_API_BASE_URL=http://YOUR_PC_IP:8000/api
 ```
 
 Use `http://10.0.2.2:8000/api` for Android emulator.
+
+## Production
+
+This backend is now wired for:
+
+- Supabase PostgreSQL via `DATABASE_URL`
+- Cloudinary raw-file storage for generated PDFs / HTML reports
+- Gunicorn + WhiteNoise for production serving
+
+### Required environment
+
+Set these in production:
+
+```env
+DJANGO_SECRET_KEY=change-me
+DJANGO_DEBUG=false
+DJANGO_ALLOWED_HOSTS=api.example.com
+CORS_ALLOWED_ORIGINS=https://app.example.com
+CSRF_TRUSTED_ORIGINS=https://api.example.com
+
+DATABASE_URL=postgresql://postgres.project:password@aws-0-region.pooler.supabase.com:6543/postgres
+DATABASE_SSL_REQUIRE=true
+
+USE_CLOUDINARY_MEDIA=true
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+CLOUDINARY_DELIVERY_TYPE=authenticated
+```
+
+### Health check
+
+The backend exposes:
+
+```text
+GET /api/auth/health/
+```
+
+Expected response includes database state and active storage mode.
+
+### Docker run
+
+```powershell
+cd apps\backend
+docker build -t flicko-backend .
+docker run --env-file .env -p 8000:8000 flicko-backend
+```
+
+### Non-Docker run
+
+```powershell
+cd apps\backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py collectstatic --noinput
+gunicorn flixo_backend.wsgi:application -c gunicorn.conf.py
+```
