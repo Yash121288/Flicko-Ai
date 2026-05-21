@@ -9,6 +9,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.core.management import call_command
 from django.core import mail
+from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -1901,6 +1902,55 @@ class AuthFlowTests(TestCase):
         self.assertEqual(response.data["status"], "ok")
         self.assertEqual(response.data["database"], "ok")
         self.assertEqual(response.data["storage"], "local")
+
+    def test_report_urls_use_authenticated_backend_download_route(self):
+        user = User.objects.create_user(
+            username="report-owner",
+            email="report-owner@example.com",
+            password="safe-pass-123",
+        )
+        report = user.health_reports.create(
+            title="Clinical report",
+            problem_name="Sexual health",
+            intake_summary="Structured report body",
+        )
+        report.pdf_file.save("report.pdf", ContentFile(b"%PDF-1.4\nreport\n"), save=False)
+        report.html_file.save("report.html", ContentFile(b"<html><body>report</body></html>"), save=False)
+        report.save(update_fields=["pdf_file", "html_file"])
+
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+
+        list_response = self.client.get("/api/auth/intake-reports/")
+        self.assertEqual(list_response.status_code, 200)
+        serialized = list_response.data["reports"][0]
+        self.assertEqual(
+            serialized["pdf_url"],
+            f"http://testserver{reverse('health-intake-report-file', kwargs={'report_id': report.id, 'file_kind': 'pdf'})}",
+        )
+        self.assertEqual(
+            serialized["html_url"],
+            f"http://testserver{reverse('health-intake-report-file', kwargs={'report_id': report.id, 'file_kind': 'html'})}",
+        )
+
+        pdf_response = self.client.get(
+            reverse("health-intake-report-file", kwargs={"report_id": report.id, "file_kind": "pdf"})
+        )
+        self.assertEqual(pdf_response.status_code, 200)
+        self.assertEqual(pdf_response["Content-Type"], "application/pdf")
+        self.assertEqual(pdf_response["Cache-Control"], "private, no-store")
+
+        other_user = User.objects.create_user(
+            username="report-other",
+            email="report-other@example.com",
+            password="safe-pass-456",
+        )
+        other_token = Token.objects.create(user=other_user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {other_token.key}")
+        blocked = self.client.get(
+            reverse("health-intake-report-file", kwargs={"report_id": report.id, "file_kind": "pdf"})
+        )
+        self.assertEqual(blocked.status_code, 404)
 
     def test_mobile_intake_schema_asset_matches_backend_source_of_truth(self):
         asset_path = (

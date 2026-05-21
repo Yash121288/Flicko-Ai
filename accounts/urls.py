@@ -9,6 +9,7 @@ from .views import (
     HealthCorpusSearchView,
     HealthMemoryEntryView,
     HealthIntakeReportView,
+    HealthIntakeReportFileView,
     HealthProtocolDetailView,
     HealthProtocolEngineContextView,
     GoogleLoginView,
@@ -59,4 +60,9 @@ urlpatterns = [
         name="protocol-engine-context",
     ),
     path("intake-reports/", HealthIntakeReportView.as_view(), name="intake-reports"),
+    path(
+        "intake-reports/<int:report_id>/<str:file_kind>/",
+        HealthIntakeReportFileView.as_view(),
+        name="health-intake-report-file",
+    ),
 ]

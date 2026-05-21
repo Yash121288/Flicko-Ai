@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
+from .report_links import report_file_url
 from .models import (
     FoodRule,
     HealthCorpusChunk,
@@ -412,15 +413,13 @@ class HealthIntakeReportSerializer(serializers.ModelSerializer):
         if not obj.pdf_file:
             return ""
         request = self.context.get("request")
-        url = obj.pdf_file.url
-        return request.build_absolute_uri(url) if request else url
+        return report_file_url(request, obj.id, "pdf")
 
     def get_html_url(self, obj: HealthIntakeReport) -> str:
         if not obj.html_file:
             return ""
         request = self.context.get("request")
-        url = obj.html_file.url
-        return request.build_absolute_uri(url) if request else url
+        return report_file_url(request, obj.id, "html")
 
 
 MEMORY_SOURCE_ALIASES = {

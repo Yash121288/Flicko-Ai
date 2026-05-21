@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from pathlib import PurePosixPath
+
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
+from django.http import FileResponse, Http404
 from django.db import connections, transaction
 from django.db.utils import OperationalError
 from django.db.models import Q
@@ -71,6 +74,8 @@ from .db_utils import run_user_write
 from .html_reports import build_health_report_html
 from .pdf_reports import build_health_report_pdf
 from .protocol_engine import ProtocolEngineRequest, build_protocol_context
+from .report_links import report_file_url
+from .report_mimetypes import report_content_type
 from .services import create_otp, normalize_email, send_otp_email, split_name, verify_otp
 
 
@@ -916,8 +921,8 @@ class HealthIntakeReportView(APIView):
                 content=fresh_report.intake_summary[:120000],
                 data={
                     "report_id": fresh_report.id,
-                    "pdf_url": fresh_report.pdf_file.url if fresh_report.pdf_file else "",
-                    "html_url": fresh_report.html_file.url if fresh_report.html_file else "",
+                    "pdf_url": report_file_url(request, fresh_report.id, "pdf") if fresh_report.pdf_file else "",
+                    "html_url": report_file_url(request, fresh_report.id, "html") if fresh_report.html_file else "",
                     "dashboard_values": fresh_report.dashboard_values,
                     "reminders": fresh_report.reminders,
                     "analyzer": analysis.analyzer if analysis is not None else "request_payload",
@@ -957,6 +962,39 @@ class HealthIntakeReportView(APIView):
             base_delay_seconds=0.12,
         )
         return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+class HealthIntakeReportFileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, report_id: int, file_kind: str):
+        report = request.user.health_reports.filter(id=report_id).first()
+        if report is None:
+            raise Http404("Report not found.")
+
+        kind = str(file_kind).strip().lower()
+        report_file = report.pdf_file if kind == "pdf" else report.html_file if kind == "html" else None
+        if report_file is None:
+            raise Http404("Unsupported report file type.")
+        if not report_file:
+            raise Http404("Requested report file is not available.")
+
+        try:
+            report_file.open("rb")
+        except FileNotFoundError as exc:
+            raise Http404("Requested report file is missing from storage.") from exc
+        except OSError as exc:
+            raise Http404("Unable to open the requested report file.") from exc
+
+        filename = PurePosixPath(str(report_file.name or f"report-{report.id}.{kind}")).name
+        response = FileResponse(
+            report_file.file,
+            as_attachment=True,
+            filename=filename,
+            content_type=report_content_type(kind),
+        )
+        response["Cache-Control"] = "private, no-store"
+        return response
 
 
 def _apply_conversation_analysis_to_profile(

@@ -70,6 +70,17 @@ GET /api/auth/health/
 
 Expected response includes database state and active storage mode.
 
+### Authenticated report file access
+
+Generated report URLs now stay behind the API instead of exposing raw storage URLs:
+
+```text
+GET /api/auth/intake-reports/<report_id>/pdf/
+GET /api/auth/intake-reports/<report_id>/html/
+```
+
+These routes require `Authorization: Token <token>` and only allow the owning user to fetch the file.
+
 ### Docker run
 
 ```powershell
