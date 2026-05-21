@@ -46,9 +46,11 @@ Set these in production:
 ```env
 DJANGO_SECRET_KEY=change-me
 DJANGO_DEBUG=false
-DJANGO_ALLOWED_HOSTS=api.example.com
+DJANGO_ALLOWED_HOSTS=api.example.com,flickoai-d4i2i.ondigitalocean.app
 CORS_ALLOWED_ORIGINS=https://app.example.com
-CSRF_TRUSTED_ORIGINS=https://api.example.com
+CSRF_TRUSTED_ORIGINS=https://api.example.com,https://flickoai-d4i2i.ondigitalocean.app
+APP_DOMAIN=flickoai-d4i2i.ondigitalocean.app
+APP_URL=https://flickoai-d4i2i.ondigitalocean.app
 
 DATABASE_URL=postgresql://postgres.project:password@aws-0-region.pooler.supabase.com:6543/postgres
 DATABASE_SSL_REQUIRE=true
@@ -122,3 +124,24 @@ Included helper scripts:
 - `deploy/digitalocean/update.sh`
 - `deploy/digitalocean/backup.sh`
 - `deploy/digitalocean/health-smoke.sh`
+
+### DigitalOcean App Platform note
+
+If you deploy on App Platform instead of a Droplet:
+
+1. Set build strategy to `Python Buildpack`
+2. Build command:
+
+```text
+python manage.py collectstatic --noinput
+```
+
+3. Run command:
+
+```text
+gunicorn flixo_backend.wsgi:application -c gunicorn.conf.py
+```
+
+4. Add `APP_DOMAIN` with bindable value `${APP_DOMAIN}`
+5. Add `APP_URL` with bindable value `${APP_URL}`
+6. Ensure `DJANGO_ALLOWED_HOSTS` still includes your custom domain if you use one

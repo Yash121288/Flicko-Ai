@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 import cloudinary
 import dj_database_url
@@ -51,9 +52,51 @@ def env_int(name: str, default: int) -> int:
         return default
 
 
+def _merge_unique(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    merged: list[str] = []
+    for value in values:
+        item = str(value or "").strip()
+        if not item or item in seen:
+            continue
+        seen.add(item)
+        merged.append(item)
+    return merged
+
+
+def env_host(name: str) -> str:
+    return os.getenv(name, "").strip().split(":")[0].strip()
+
+
+def env_url_origin(name: str) -> str:
+    raw = os.getenv(name, "").strip()
+    if not raw:
+        return ""
+    parsed = urlparse(raw)
+    if not parsed.scheme or not parsed.netloc:
+        return ""
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
+def env_url_host(name: str) -> str:
+    raw = os.getenv(name, "").strip()
+    if not raw:
+        return ""
+    parsed = urlparse(raw)
+    return str(parsed.hostname or "").strip()
+
+
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-flicko-secret-key")
 DEBUG = env_bool("DJANGO_DEBUG", True)
-ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,10.0.2.2")
+ALLOWED_HOSTS = _merge_unique(
+    env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,10.0.2.2")
+    + [
+        env_host("APP_DOMAIN"),
+        env_host("DIGITALOCEAN_APP_DOMAIN"),
+        env_url_host("APP_URL"),
+        env_url_host("DIGITALOCEAN_APP_URL"),
+    ]
+)
 
 INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
@@ -209,7 +252,13 @@ REST_FRAMEWORK = {
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS")
 CORS_ALLOW_ALL_ORIGINS = DEBUG and not CORS_ALLOWED_ORIGINS
-CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
+CSRF_TRUSTED_ORIGINS = _merge_unique(
+    env_list("CSRF_TRUSTED_ORIGINS")
+    + [
+        env_url_origin("APP_URL"),
+        env_url_origin("DIGITALOCEAN_APP_URL"),
+    ]
+)
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
