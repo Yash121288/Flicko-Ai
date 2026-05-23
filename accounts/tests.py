@@ -4,7 +4,6 @@ from html import escape as html_escape
 from io import StringIO
 import json
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
 from django.conf import settings
@@ -2070,7 +2069,7 @@ class AuthFlowTests(TestCase):
         response = self.client.get("/favicon.ico")
         self.assertEqual(response.status_code, 204)
 
-    def test_report_urls_use_authenticated_backend_download_route(self):
+    def test_report_urls_expose_direct_open_url_and_protected_backend_route(self):
         user = User.objects.create_user(
             username="report-owner",
             email="report-owner@example.com",
@@ -2099,22 +2098,12 @@ class AuthFlowTests(TestCase):
             serialized["html_url"],
             f"http://testserver{reverse('health-intake-report-file', kwargs={'report_id': report.id, 'file_kind': 'html'})}",
         )
-        self.assertIn(
-            reverse(
-                "health-intake-report-file",
-                kwargs={"report_id": report.id, "file_kind": "pdf"},
-            ),
-            serialized["pdf_open_url"],
-        )
-        self.assertIn("access_token=", serialized["pdf_open_url"])
-        self.assertIn(
-            reverse(
-                "health-intake-report-file",
-                kwargs={"report_id": report.id, "file_kind": "html"},
-            ),
-            serialized["html_open_url"],
-        )
-        self.assertIn("access_token=", serialized["html_open_url"])
+        self.assertTrue(serialized["pdf_open_url"].startswith("http://testserver/media/"))
+        self.assertTrue(serialized["pdf_open_url"].endswith(".pdf"))
+        self.assertNotIn("/api/auth/intake-reports/", serialized["pdf_open_url"])
+        self.assertTrue(serialized["html_open_url"].startswith("http://testserver/media/"))
+        self.assertTrue(serialized["html_open_url"].endswith(".html"))
+        self.assertNotIn("/api/auth/intake-reports/", serialized["html_open_url"])
 
         pdf_response = self.client.get(
             reverse("health-intake-report-file", kwargs={"report_id": report.id, "file_kind": "pdf"})
@@ -2124,13 +2113,10 @@ class AuthFlowTests(TestCase):
         self.assertEqual(pdf_response["Cache-Control"], "private, no-store")
 
         self.client.credentials()
-        signed_pdf = urlparse(serialized["pdf_open_url"])
-        signed_pdf_response = self.client.get(
-            signed_pdf.path,
-            data=parse_qs(signed_pdf.query),
+        anonymous_pdf = self.client.get(
+            reverse("health-intake-report-file", kwargs={"report_id": report.id, "file_kind": "pdf"})
         )
-        self.assertEqual(signed_pdf_response.status_code, 200)
-        self.assertEqual(signed_pdf_response["Content-Type"], "application/pdf")
+        self.assertEqual(anonymous_pdf.status_code, 404)
 
         other_user = User.objects.create_user(
             username="report-other",
@@ -2143,11 +2129,11 @@ class AuthFlowTests(TestCase):
             reverse("health-intake-report-file", kwargs={"report_id": report.id, "file_kind": "pdf"})
         )
         self.assertEqual(blocked.status_code, 404)
-        signed_blocked = self.client.get(
-            signed_pdf.path,
+        blocked_direct_route = self.client.get(
+            reverse("health-intake-report-file", kwargs={"report_id": report.id, "file_kind": "pdf"}),
             data={"access_token": "broken"},
         )
-        self.assertEqual(signed_blocked.status_code, 404)
+        self.assertEqual(blocked_direct_route.status_code, 404)
 
     def test_mobile_intake_schema_asset_matches_backend_source_of_truth(self):
         asset_path = (

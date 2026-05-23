@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from urllib.parse import urlencode
-
 from django.core import signing
 from django.urls import reverse
 
@@ -62,11 +60,9 @@ def report_open_url(request, report, file_kind: str) -> str:
     report_file = report.pdf_file if str(file_kind).strip().lower() == "pdf" else report.html_file
     if not report_file:
         return ""
-    token = report_file_access_token(
-        report_id=report.id,
-        user_id=report.user_id,
-        file_kind=file_kind,
-    )
-    base_url = report_file_url(request, report.id, file_kind)
-    query = urlencode({"access_token": token})
-    return f"{base_url}?{query}" if query else base_url
+    file_url = str(report_file.url or "").strip()
+    if not file_url:
+        return ""
+    if file_url.startswith(("http://", "https://")):
+        return file_url
+    return request.build_absolute_uri(file_url) if request else file_url
