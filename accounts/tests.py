@@ -4,6 +4,7 @@ from html import escape as html_escape
 from io import StringIO
 import json
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
 from django.conf import settings
@@ -50,6 +51,7 @@ from .report_templates import (
     template_for_problem,
     template_slug,
 )
+from .views import _merge_saved_reminder_records
 from .services import verify_otp
 
 
@@ -370,6 +372,159 @@ class AuthFlowTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["meal_analyses"][0]["meal_name"], "Lunch plate")
         self.assertEqual(response.data["summary"]["latest_log_value"], "118 - mg/dL")
+
+    def test_app_data_snapshot_replaces_stale_reminder_records(self):
+        user = User.objects.create_user(
+            username="reminders@example.com",
+            email="reminders@example.com",
+            password="secret123",
+        )
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        self.client.patch(
+            reverse("me"),
+            {
+                "name": "Reminder User",
+                "selected_problems": ["Weight management"],
+                "safety_consent_accepted": True,
+            },
+            format="json",
+        )
+
+        UserReminderRecord.objects.create(
+            user=user,
+            external_id="old-reminder",
+            problem_name="Weight management",
+            title="Drink water",
+            body="2L water",
+            hour=7,
+            minute=0,
+            enabled=True,
+        )
+        UserReminderRecord.objects.create(
+            user=user,
+            external_id="obsolete-reminder",
+            problem_name="Weight management",
+            title="Walk",
+            body="Evening walk",
+            hour=18,
+            minute=0,
+            enabled=True,
+        )
+
+        response = self.client.post(
+            reverse("health-app-data"),
+            {
+                "saved_reminders": [
+                    {
+                        "id": "new-reminder",
+                        "title": "Drink water",
+                        "body": "2L water",
+                        "hour": 9,
+                        "minute": 30,
+                        "problemName": "Weight management",
+                        "enabled": True,
+                    }
+                ],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        reminders = list(user.reminder_records.all())
+        self.assertEqual(len(reminders), 1)
+        self.assertEqual(reminders[0].external_id, "new-reminder")
+        self.assertEqual(reminders[0].hour, 9)
+        self.assertEqual(reminders[0].minute, 30)
+
+        response = self.client.get(reverse("health-app-data"), {"limit": 10})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["saved_reminders"]), 1)
+        self.assertEqual(response.data["saved_reminders"][0]["external_id"], "new-reminder")
+
+    def test_saved_reminder_merge_prefers_newest_time_for_same_semantic_key(self):
+        merged = _merge_saved_reminder_records(
+            [
+                {
+                    "id": "new-reminder",
+                    "problemName": "Weight management",
+                    "title": "Drink water",
+                    "body": "2L water",
+                    "hour": 9,
+                    "minute": 30,
+                    "updatedAt": "2026-05-22T10:00:00+05:30",
+                }
+            ],
+            [
+                {
+                    "id": "old-reminder",
+                    "problemName": "Weight management",
+                    "title": "Drink water",
+                    "body": "2L water",
+                    "hour": 7,
+                    "minute": 0,
+                    "updatedAt": "2026-05-21T08:00:00+05:30",
+                }
+            ],
+            limit=10,
+        )
+
+        self.assertEqual(len(merged), 1)
+        self.assertEqual(merged[0]["id"], "new-reminder")
+        self.assertEqual(merged[0]["hour"], 9)
+        self.assertEqual(merged[0]["minute"], 30)
+
+    def test_single_reminder_upsert_keeps_other_saved_reminders(self):
+        user = User.objects.create_user(
+            username="single-reminder@example.com",
+            email="single-reminder@example.com",
+            password="secret123",
+        )
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        self.client.patch(
+            reverse("me"),
+            {
+                "name": "Single Reminder User",
+                "selected_problems": ["Weight management"],
+                "safety_consent_accepted": True,
+            },
+            format="json",
+        )
+
+        UserReminderRecord.objects.create(
+            user=user,
+            external_id="existing-reminder",
+            problem_name="Weight management",
+            title="Walk",
+            body="Evening walk",
+            hour=18,
+            minute=0,
+            enabled=True,
+        )
+
+        response = self.client.post(
+            reverse("health-app-records", args=["reminders"]),
+            {
+                "id": "new-reminder",
+                "title": "Drink water",
+                "body": "2L water",
+                "hour": 9,
+                "minute": 30,
+                "problemName": "Weight management",
+                "enabled": True,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(user.reminder_records.count(), 2)
+        self.assertTrue(
+            user.reminder_records.filter(external_id="existing-reminder").exists()
+        )
+        self.assertTrue(
+            user.reminder_records.filter(external_id="new-reminder").exists()
+        )
 
     def test_app_record_crud_endpoint_upserts_and_deletes_records(self):
         user = User.objects.create_user(
@@ -1944,6 +2099,22 @@ class AuthFlowTests(TestCase):
             serialized["html_url"],
             f"http://testserver{reverse('health-intake-report-file', kwargs={'report_id': report.id, 'file_kind': 'html'})}",
         )
+        self.assertIn(
+            reverse(
+                "health-intake-report-file",
+                kwargs={"report_id": report.id, "file_kind": "pdf"},
+            ),
+            serialized["pdf_open_url"],
+        )
+        self.assertIn("access_token=", serialized["pdf_open_url"])
+        self.assertIn(
+            reverse(
+                "health-intake-report-file",
+                kwargs={"report_id": report.id, "file_kind": "html"},
+            ),
+            serialized["html_open_url"],
+        )
+        self.assertIn("access_token=", serialized["html_open_url"])
 
         pdf_response = self.client.get(
             reverse("health-intake-report-file", kwargs={"report_id": report.id, "file_kind": "pdf"})
@@ -1951,6 +2122,15 @@ class AuthFlowTests(TestCase):
         self.assertEqual(pdf_response.status_code, 200)
         self.assertEqual(pdf_response["Content-Type"], "application/pdf")
         self.assertEqual(pdf_response["Cache-Control"], "private, no-store")
+
+        self.client.credentials()
+        signed_pdf = urlparse(serialized["pdf_open_url"])
+        signed_pdf_response = self.client.get(
+            signed_pdf.path,
+            data=parse_qs(signed_pdf.query),
+        )
+        self.assertEqual(signed_pdf_response.status_code, 200)
+        self.assertEqual(signed_pdf_response["Content-Type"], "application/pdf")
 
         other_user = User.objects.create_user(
             username="report-other",
@@ -1963,6 +2143,11 @@ class AuthFlowTests(TestCase):
             reverse("health-intake-report-file", kwargs={"report_id": report.id, "file_kind": "pdf"})
         )
         self.assertEqual(blocked.status_code, 404)
+        signed_blocked = self.client.get(
+            signed_pdf.path,
+            data={"access_token": "broken"},
+        )
+        self.assertEqual(signed_blocked.status_code, 404)
 
     def test_mobile_intake_schema_asset_matches_backend_source_of_truth(self):
         asset_path = (

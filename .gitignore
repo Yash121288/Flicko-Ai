@@ -1,8 +1,11 @@
 .env
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 db.sqlite3
 media/
 tmp/
 .pytest_cache/
 .mypy_cache/
+.venv/

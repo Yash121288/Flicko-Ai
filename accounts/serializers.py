@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from .report_links import report_file_url
+from .report_links import report_file_url, report_open_url
 from .models import (
     FoodRule,
     HealthCorpusChunk,
@@ -394,6 +394,8 @@ class HealthIntakeReportCreateSerializer(serializers.Serializer):
 class HealthIntakeReportSerializer(serializers.ModelSerializer):
     pdf_url = serializers.SerializerMethodField()
     html_url = serializers.SerializerMethodField()
+    pdf_open_url = serializers.SerializerMethodField()
+    html_open_url = serializers.SerializerMethodField()
 
     class Meta:
         model = HealthIntakeReport
@@ -406,6 +408,8 @@ class HealthIntakeReportSerializer(serializers.ModelSerializer):
             "reminders",
             "pdf_url",
             "html_url",
+            "pdf_open_url",
+            "html_open_url",
             "created_at",
         )
 
@@ -420,6 +424,14 @@ class HealthIntakeReportSerializer(serializers.ModelSerializer):
             return ""
         request = self.context.get("request")
         return report_file_url(request, obj.id, "html")
+
+    def get_pdf_open_url(self, obj: HealthIntakeReport) -> str:
+        request = self.context.get("request")
+        return report_open_url(request, obj, "pdf")
+
+    def get_html_open_url(self, obj: HealthIntakeReport) -> str:
+        request = self.context.get("request")
+        return report_open_url(request, obj, "html")
 
 
 MEMORY_SOURCE_ALIASES = {

@@ -11,9 +11,10 @@ from django.db import connections, transaction
 from django.db.utils import OperationalError
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from rest_framework import status, throttling
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from google.auth.transport import requests as google_requests
@@ -22,6 +23,7 @@ from google.oauth2 import id_token as google_id_token
 from .models import (
     FoodRule,
     HealthCorpusChunk,
+    HealthIntakeReport,
     HealthMemoryEntry,
     HealthProtocol,
     EmailOTP,
@@ -74,7 +76,11 @@ from .db_utils import run_user_write
 from .html_reports import build_health_report_html
 from .pdf_reports import build_health_report_pdf
 from .protocol_engine import ProtocolEngineRequest, build_protocol_context
-from .report_links import report_file_url
+from .report_links import (
+    load_report_file_access_token,
+    report_file_url,
+    report_open_url,
+)
 from .report_mimetypes import report_content_type
 from .services import create_otp, normalize_email, send_otp_email, split_name, verify_otp
 
@@ -364,7 +370,12 @@ class MeView(APIView):
             profile.last_synced_at = timezone.now()
             profile.save()
             _write_profile_memory(user, data)
-            sync_app_data(user, data, problem_name=_primary_problem_from_profile(profile))
+            sync_app_data(
+                user,
+                data,
+                problem_name=_primary_problem_from_profile(profile),
+                snapshot_fields={field for field in PROFILE_JSON_OBJECT_LIST_FIELDS if field in data},
+            )
             return user_payload(user)
 
         return Response(
@@ -432,6 +443,7 @@ class HealthAppDataView(APIView):
                 request.user,
                 data,
                 problem_name=_primary_problem_from_profile(profile),
+                snapshot_fields={field for field in PROFILE_JSON_OBJECT_LIST_FIELDS if field in data},
             )
             _write_profile_memory(request.user, data)
             return {
@@ -878,7 +890,7 @@ class HealthIntakeReportView(APIView):
             )
             fresh_report.save(update_fields=["pdf_file", "html_file"])
             profile, _ = UserProfile.objects.get_or_create(user=request.user)
-            _attach_report_to_profile(profile, fresh_report)
+            _attach_report_to_profile(profile, fresh_report, request=request)
             if analysis is not None:
                 HealthMemoryEntry.objects.create(
                     user=request.user,
@@ -965,15 +977,26 @@ class HealthIntakeReportView(APIView):
 
 
 class HealthIntakeReportFileView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, report_id: int, file_kind: str):
-        report = request.user.health_reports.filter(id=report_id).first()
+        kind = str(file_kind).strip().lower()
+        if kind not in {"pdf", "html"}:
+            raise Http404("Unsupported report file type.")
+
+        report = None
+        if request.user.is_authenticated:
+            report = request.user.health_reports.filter(id=report_id).first()
+        if report is None:
+            report = self._report_from_access_token(
+                request.query_params.get("access_token"),
+                report_id=report_id,
+                file_kind=kind,
+            )
         if report is None:
             raise Http404("Report not found.")
 
-        kind = str(file_kind).strip().lower()
-        report_file = report.pdf_file if kind == "pdf" else report.html_file if kind == "html" else None
+        report_file = report.pdf_file if kind == "pdf" else report.html_file
         if report_file is None:
             raise Http404("Unsupported report file type.")
         if not report_file:
@@ -995,6 +1018,19 @@ class HealthIntakeReportFileView(APIView):
         )
         response["Cache-Control"] = "private, no-store"
         return response
+
+    def _report_from_access_token(self, token: str | None, *, report_id: int, file_kind: str):
+        user_id = load_report_file_access_token(
+            token or "",
+            report_id=report_id,
+            file_kind=file_kind,
+        )
+        if user_id is None:
+            return None
+        return HealthIntakeReport.objects.select_related("user").filter(
+            id=report_id,
+            user_id=user_id,
+        ).first()
 
 
 def _apply_conversation_analysis_to_profile(
@@ -1020,7 +1056,7 @@ def _apply_conversation_analysis_to_profile(
         profile.reminders,
         limit=120,
     )
-    profile.saved_reminders = _merge_json_records(
+    profile.saved_reminders = _merge_saved_reminder_records(
         app_data.get("saved_reminders", []),
         profile.saved_reminders,
         limit=300,
@@ -1050,10 +1086,10 @@ def _apply_conversation_analysis_to_profile(
     profile.save()
 
 
-def _attach_report_to_profile(profile: UserProfile, report) -> None:
+def _attach_report_to_profile(profile: UserProfile, report, *, request=None) -> None:
     links = [
-        f"PDF: {report.pdf_file.url}" if report.pdf_file else "",
-        f"HTML: {report.html_file.url}" if report.html_file else "",
+        f"PDF: {report_open_url(request, report, 'pdf')}" if report.pdf_file else "",
+        f"HTML: {report_open_url(request, report, 'html')}" if report.html_file else "",
     ]
     label = "\n".join(
         [report.title, *[link for link in links if link]]
@@ -1103,6 +1139,59 @@ def _merge_json_records(incoming, existing, *, limit: int) -> list[dict]:
             if len(records) >= limit:
                 return records
     return records
+
+
+def _merge_saved_reminder_records(incoming, existing, *, limit: int) -> list[dict]:
+    records: list[dict] = []
+    for group in (incoming, existing):
+        if not isinstance(group, list):
+            continue
+        for value in group:
+            if isinstance(value, dict):
+                records.append(dict(value))
+
+    records.sort(key=_saved_reminder_sort_key, reverse=True)
+
+    seen_ids: set[str] = set()
+    seen_semantics: set[str] = set()
+    result: list[dict] = []
+    for record in records:
+        record_id = str(record.get("id") or record.get("external_id") or "").strip().lower()
+        semantic = _saved_reminder_semantic_key(record)
+        if record_id and record_id in seen_ids:
+            continue
+        if semantic in seen_semantics:
+            continue
+        if record_id:
+            seen_ids.add(record_id)
+        seen_semantics.add(semantic)
+        result.append(record)
+        if len(result) >= limit:
+            break
+    return result
+
+
+def _saved_reminder_sort_key(record: dict) -> tuple[str, str]:
+    for field in ("updatedAt", "updated_at", "createdAt", "created_at"):
+        raw_value = record.get(field)
+        if raw_value is None:
+            continue
+        parsed = parse_datetime(str(raw_value).strip())
+        if parsed is not None:
+            if timezone.is_naive(parsed):
+                parsed = timezone.make_aware(parsed, timezone.get_current_timezone())
+            return (parsed.isoformat(), str(record.get("id") or record.get("external_id") or ""))
+    return ("", str(record.get("id") or record.get("external_id") or ""))
+
+
+def _saved_reminder_semantic_key(record: dict) -> str:
+    return "|".join(
+        [
+            str(record.get("problemName") or record.get("problem_name") or "").strip().lower(),
+            str(record.get("title") or "").strip().lower(),
+            str(record.get("body") or "").strip().lower(),
+        ]
+    )
 
 
 def _bounded_limit(value: str, *, default: int, maximum: int) -> int:

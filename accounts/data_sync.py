@@ -34,6 +34,7 @@ def sync_app_data(
     data: dict[str, Any],
     *,
     problem_name: str = "",
+    snapshot_fields: set[str] | None = None,
 ) -> dict[str, int]:
     """Upsert local app records into normalized backend tables.
 
@@ -41,6 +42,8 @@ def sync_app_data(
     those snapshots queryable for dashboards, reports, safety audit, and future
     analytics while preserving the original payload for forward compatibility.
     """
+
+    snapshot_fields = {str(field).strip() for field in (snapshot_fields or set()) if str(field).strip()}
 
     counts = {
         "health_logs": _sync_health_logs(user, data.get("health_logs"), problem_name),
@@ -53,6 +56,7 @@ def sync_app_data(
             user,
             data.get("saved_reminders"),
             problem_name,
+            replace_existing="saved_reminders" in snapshot_fields,
         ),
         "care_tasks": _sync_care_tasks(user, data.get("care_tasks"), problem_name),
         "safety_events": _sync_safety_events(
@@ -199,10 +203,18 @@ def _sync_meal_analyses(user: User, values: Any, fallback_problem: str) -> int:
     return count
 
 
-def _sync_reminders(user: User, values: Any, fallback_problem: str) -> int:
+def _sync_reminders(
+    user: User,
+    values: Any,
+    fallback_problem: str,
+    *,
+    replace_existing: bool = False,
+) -> int:
+    incoming_ids: set[str] = set()
     count = 0
     for index, item in enumerate(_dict_items(values)):
         external_id = _external_id(item, "reminder", index)
+        incoming_ids.add(external_id)
         UserReminderRecord.objects.update_or_create(
             user=user,
             external_id=external_id,
@@ -217,7 +229,57 @@ def _sync_reminders(user: User, values: Any, fallback_problem: str) -> int:
             },
         )
         count += 1
+    _dedupe_reminder_records(
+        user,
+        incoming_external_ids=incoming_ids,
+        replace_existing=replace_existing,
+    )
     return count
+
+
+def _dedupe_reminder_records(
+    user: User,
+    *,
+    incoming_external_ids: set[str],
+    replace_existing: bool,
+) -> None:
+    records = list(user.reminder_records.all())
+    keep_ids: set[int] = set()
+    grouped: dict[str, list[UserReminderRecord]] = {}
+
+    for record in records:
+        grouped.setdefault(_reminder_semantic_key(record), []).append(record)
+
+    for group in grouped.values():
+        newest = max(group, key=lambda record: (record.updated_at, record.created_at, record.id))
+        keep_ids.add(int(newest.id))
+
+    stale_ids = {
+        int(record.id)
+        for record in records
+        if int(record.id) not in keep_ids
+    }
+
+    if replace_existing:
+        snapshot_external_ids = {external_id for external_id in incoming_external_ids if external_id}
+        stale_ids.update(
+            int(record.id)
+            for record in records
+            if record.external_id not in snapshot_external_ids
+        )
+
+    if stale_ids:
+        UserReminderRecord.objects.filter(user=user, id__in=stale_ids).delete()
+
+
+def _reminder_semantic_key(record: UserReminderRecord) -> str:
+    return "|".join(
+        [
+            _clean_string(record.problem_name).lower(),
+            _clean_string(record.title).lower(),
+            _clean_string(record.body).lower(),
+        ]
+    )
 
 
 def _sync_care_tasks(user: User, values: Any, fallback_problem: str) -> int:
