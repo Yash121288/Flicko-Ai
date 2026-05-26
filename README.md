@@ -21,9 +21,6 @@
   <img alt="Reports" src="https://img.shields.io/badge/Reports-PDF%20%2B%20HTML-111827" />
 </p>
 
-<p align="center">
-  <img src="apps/mobile/assets/images/welcome_hero.png" alt="Flicko AI welcome experience" width="760" />
-</p>
 
 ## App Experience
 
