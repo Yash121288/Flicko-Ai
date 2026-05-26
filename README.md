@@ -11,7 +11,7 @@ Local backend for Flicko authentication.
 - `POST /api/auth/password/reset/` - verify reset OTP and set a new password.
 - `GET/PATCH /api/auth/me/` - authenticated profile fetch/update with `Authorization: Token <token>`.
 
-## Run
+## Run 1
 
 ```powershell
 cd apps\backend
