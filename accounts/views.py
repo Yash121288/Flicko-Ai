@@ -899,13 +899,13 @@ class HealthIntakeReportView(APIView):
                     if data.get("source") == "call"
                     else HealthMemoryEntry.Source.CHAT,
                     category=HealthMemoryEntry.Category.INTAKE_SUMMARY,
-                    title=f"{fresh_report.title} source transcript",
-                    content=analysis.raw_transcript_text[:120000],
+                    title=f"{fresh_report.title} structured intake map",
+                    content=str(
+                        analysis.intake_assessment.get("archive_markdown") or ""
+                    )[:120000],
                     data={
                         "report_id": fresh_report.id,
-                        "analyzer": analysis.analyzer,
-                        "analysis": analysis.to_response(),
-                        "source_payload": data.get("source_payload", {}),
+                        "intake_assessment": analysis.intake_assessment,
                     },
                 )
                 HealthMemoryEntry.objects.create(
@@ -915,13 +915,13 @@ class HealthIntakeReportView(APIView):
                     if data.get("source") == "call"
                     else HealthMemoryEntry.Source.CHAT,
                     category=HealthMemoryEntry.Category.INTAKE_SUMMARY,
-                    title=f"{fresh_report.title} structured intake map",
-                    content=str(
-                        analysis.intake_assessment.get("archive_markdown") or ""
-                    )[:120000],
+                    title=f"{fresh_report.title} source transcript",
+                    content=analysis.raw_transcript_text[:120000],
                     data={
                         "report_id": fresh_report.id,
-                        "intake_assessment": analysis.intake_assessment,
+                        "analyzer": analysis.analyzer,
+                        "analysis": analysis.to_response(),
+                        "source_payload": data.get("source_payload", {}),
                     },
                 )
             HealthMemoryEntry.objects.create(
@@ -1039,8 +1039,8 @@ def _apply_conversation_analysis_to_profile(
 ) -> None:
     app_data = analysis.app_data
     profile.intake_summary = analysis.report_markdown or analysis.intake_summary
-    profile.intake_completed = bool(profile.intake_completed) or bool(
-        analysis.intake_assessment.get("is_complete")
+    profile.intake_completed = bool(profile.intake_completed) or _analysis_marks_intake_complete(
+        analysis
     )
     profile.dashboard_values = {
         **(profile.dashboard_values if isinstance(profile.dashboard_values, dict) else {}),
@@ -1084,6 +1084,29 @@ def _apply_conversation_analysis_to_profile(
     profile.latest_chat_summary = transcript_to_text(app_data.get("chat_history", []))[:12000]
     profile.last_synced_at = timezone.now()
     profile.save()
+
+
+def _analysis_marks_intake_complete(analysis) -> bool:
+    if bool(analysis.intake_assessment.get("is_complete")):
+        return True
+    app_data = analysis.app_data if isinstance(analysis.app_data, dict) else {}
+    action_count = sum(
+        len(app_data.get(key, []))
+        for key in ("saved_reminders", "care_tasks", "health_logs")
+        if isinstance(app_data.get(key, []), list)
+    )
+    has_context = bool(
+        (analysis.raw_transcript_text or "").strip()
+        or (analysis.intake_summary or "").strip()
+    )
+    has_score = bool(
+        isinstance(analysis.dashboard_values, dict)
+        and (
+            "score" in analysis.dashboard_values
+            or "health_score" in analysis.dashboard_values
+        )
+    )
+    return has_context and has_score and action_count > 0
 
 
 def _attach_report_to_profile(profile: UserProfile, report, *, request=None) -> None:

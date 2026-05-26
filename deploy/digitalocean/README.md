@@ -110,7 +110,7 @@ EMAIL_HOST_PASSWORD=your-app-password
 EMAIL_USE_TLS=true
 DEFAULT_FROM_EMAIL=Flicko AI <no-reply@yourdomain.com>
 
-GOOGLE_OAUTH_CLIENT_IDS=your-web-client-id.apps.googleusercontent.com
+GOOGLE_OAUTH_CLIENT_IDS=782174705998-7l0035suockngjdvbhbue651sv6cemll.apps.googleusercontent.com
 GROQ_API_KEY=optional-groq-key
 ```
 

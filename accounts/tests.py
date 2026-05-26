@@ -225,6 +225,13 @@ class AuthFlowTests(TestCase):
                 "health_logs": [{"type": "weight", "valueText": "86 kg"}],
                 "safety_events": [{"severity": "self_care", "title": "No red flag"}],
                 "chat_history": [{"role": "user", "text": "I want weight help."}],
+                "call_memories": [
+                    {
+                        "reason": "dailyRoutine",
+                        "dashboardNote": "User completed a follow-up call.",
+                    }
+                ],
+                "latest_call_memory": "User completed a follow-up call.",
             },
             format="json",
         )
@@ -249,6 +256,12 @@ class AuthFlowTests(TestCase):
         self.assertEqual(user.safety_event_records.count(), 1)
         self.assertEqual(user.chat_message_records.count(), 1)
         self.assertEqual(user.meal_analysis_records.first().score, 82)
+        app_sync_memory = HealthMemoryEntry.objects.filter(
+            user=user,
+            title="Full app data background sync",
+        ).latest("created_at")
+        self.assertEqual(app_sync_memory.content, "User completed a follow-up call.")
+        self.assertEqual(app_sync_memory.data["call_memories"][0]["reason"], "dailyRoutine")
         self.assertEqual(
             HealthMemoryEntry.objects.filter(
                 user=user,

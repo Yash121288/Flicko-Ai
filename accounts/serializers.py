@@ -183,6 +183,12 @@ class ProfilePatchSerializer(serializers.Serializer):
         max_length=160,
     )
     latest_chat_summary = serializers.CharField(max_length=12000, required=False, allow_blank=True)
+    call_memories = serializers.ListField(
+        child=serializers.DictField(),
+        required=False,
+        max_length=80,
+    )
+    latest_call_memory = serializers.CharField(max_length=12000, required=False, allow_blank=True)
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
