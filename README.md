@@ -144,4 +144,4 @@ gunicorn flixo_backend.wsgi:application -c gunicorn.conf.py
 
 4. Add `APP_DOMAIN` with bindable value `${APP_DOMAIN}`
 5. Add `APP_URL` with bindable value `${APP_URL}`
-6. Ensure `DJANGO_ALLOWED_HOSTS` still includes your custom domain if you use one
+6. Ensure `DJANGO_ALLOWED_HOSTS` still includes your custom domain if you see this use one
