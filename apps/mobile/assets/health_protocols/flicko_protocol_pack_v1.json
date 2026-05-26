@@ -1,0 +1,681 @@
+{
+  "packVersion": "1.0.0",
+  "generatedAt": "2026-05-20",
+  "reviewStatus": "starter_unreviewed",
+  "source": "Flicko AI bundled local starter health protocol pack",
+  "disclaimer": "This pack supports coaching, intake, dashboard personalization, reminders, and report drafting. It is not a diagnosis, prescription, or emergency service.",
+  "commonSafetyRules": [
+    {
+      "ruleId": "SAFE-EMERGENCY-001",
+      "severity": "emergency",
+      "symptomPattern": "chest pain trouble breathing severe allergic reaction stroke face droop arm weakness speech fainting seizure suicidal heavy bleeding confusion severe dehydration",
+      "response": "Stop normal coaching and advise urgent medical care now."
+    },
+    {
+      "ruleId": "SAFE-MEDICINE-001",
+      "severity": "clinician",
+      "symptomPattern": "change medicine stop medicine insulin steroid pregnancy dose overdose side effect",
+      "response": "Give general safety guidance only and tell the user to confirm medicine changes with a licensed clinician."
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "Weight management",
+      "aliases": ["weight loss", "obesity", "fat loss", "bmi", "weight gain"],
+      "protocols": [
+        {
+          "protocolId": "APP-WEIGHT-CARE-001",
+          "version": 1,
+          "title": "Weight management daily coaching",
+          "summary": "Build a calorie-aware plan with protein, fiber, walking, sleep, hunger control, and weekly trend review.",
+          "rules": ["Check weight trend, waist, hunger, cravings, sleep, steps, and meal timing before changing the plan.", "Prefer slow fat loss with muscle protection, not crash dieting.", "Flag thyroid, sugar, medication, stress, and sleep issues if weight is stuck."]
+        }
+      ],
+      "foodRules": ["Prefer protein plus vegetables first in meals.", "Reduce sweet drinks, fried snacks, late-night high-calorie eating, and ultra-processed foods.", "Use meal photo scoring for portion size, protein, oil, sugar, and fiber."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-WEIGHT-001",
+          "severity": "urgent",
+          "symptomPattern": "rapid weight loss vomiting blood black stool fainting eating disorder purging severe weakness",
+          "response": "Advise medical review before continuing weight coaching."
+        }
+      ],
+      "intakeQuestions": ["Current weight, goal weight, height, waist if known.", "Weight change over the last 3 months.", "Typical breakfast, lunch, dinner, snacks, and drinks.", "Hunger, cravings, binge episodes, late dinner, and weekend pattern.", "Sleep duration, stress, steps, workout level, and injuries.", "Medicines, thyroid, diabetes, PCOS, steroid use, and family history."],
+      "reminderScripts": ["07:00 water and weigh-in", "13:00 upload lunch photo", "19:00 20-minute walk", "22:30 sleep wind-down"],
+      "reportBlocks": ["User snapshot", "BMI and weight trend", "Nutrition pattern", "Activity and lifestyle", "Reminder plan", "7-day AI plan", "Doctor or coach notes"],
+      "dashboardMetrics": ["weight_trend_kg", "bmi", "protein_consistency", "steps", "water_liters", "sleep_hours"],
+      "memorySchemas": ["weight_logs", "meal_photos", "craving_events", "workouts", "weekly_summary"],
+      "evidenceSourceIds": ["INT-WEIGHT-001", "INT-NUTRITION-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Diabetes Type 1",
+      "aliases": ["type 1 diabetes", "t1d", "insulin dependent diabetes"],
+      "protocols": [
+        {
+          "protocolId": "APP-T1D-CARE-001",
+          "version": 1,
+          "title": "Type 1 diabetes support protocol",
+          "summary": "Support glucose awareness, meal consistency, insulin safety boundaries, hypo/hyperglycemia red flags, and doctor-ready logs.",
+          "rules": ["Never adjust insulin dose without clinician confirmation.", "Ask about glucose reading, meal timing, insulin timing, activity, illness, and ketones when relevant.", "Prioritize hypoglycemia and DKA safety before lifestyle coaching."]
+        }
+      ],
+      "foodRules": ["Pair carbohydrates with protein and fiber where possible.", "Ask for carb amount, insulin timing, and glucose trend before meal advice.", "Avoid giving fixed insulin corrections."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-T1D-001",
+          "severity": "emergency",
+          "symptomPattern": "very high sugar ketones vomiting deep breathing fruity breath confusion dka unconscious severe low sugar seizure",
+          "response": "Advise urgent medical care or emergency support immediately."
+        }
+      ],
+      "intakeQuestions": ["Diagnosis year, insulin type, pump or injections, CGM or glucometer.", "Usual glucose range, recent lows, highs, and ketone history.", "Meal timing, carb counting confidence, workouts, school or work routine.", "Hypoglycemia symptoms and rescue plan.", "A1c or recent lab if known, clinician follow-up, complications."],
+      "reminderScripts": ["Pre-meal glucose check", "Carry hypo treatment", "Ketone check if ill/high", "Weekly glucose summary"],
+      "reportBlocks": ["Glucose pattern", "Hypo and hyper risk", "Meal and insulin context", "Activity effect", "Safety plan", "Clinician questions"],
+      "dashboardMetrics": ["glucose_current", "hypo_events", "meal_consistency", "activity_effect", "ketone_risk"],
+      "memorySchemas": ["glucose_logs", "hypo_events", "meal_carb_notes", "insulin_context", "sick_day_notes"],
+      "evidenceSourceIds": ["INT-DIABETES-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Diabetes Type 2",
+      "aliases": ["diabetes", "type 2 diabetes", "t2d", "blood sugar"],
+      "protocols": [
+        {
+          "protocolId": "APP-DM2-CARE-001",
+          "version": 1,
+          "title": "Type 2 diabetes daily coaching",
+          "summary": "Improve glucose stability with meal timing, low-glycemic choices, walking, sleep, medication adherence, and weekly trend reports.",
+          "rules": ["Ask for fasting and post-meal readings when available.", "Prioritize meal consistency, protein, fiber, walking after meals, and medicine timing.", "Escalate symptoms of severe hypo/hyperglycemia."]
+        }
+      ],
+      "foodRules": ["Avoid sugary drinks and large refined-carb portions.", "Prefer protein, vegetables, dal/beans, curd, nuts, and controlled grain portions.", "Use meal photo scoring for glucose impact: sugar, refined carbs, portion size, fiber, and protein."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-DM2-001",
+          "severity": "urgent",
+          "symptomPattern": "sugar 300 sugar 400 confusion vomiting severe weakness fruity breath fainting very low sugar sweating shaking",
+          "response": "Advise urgent clinician care or emergency help depending on severity."
+        }
+      ],
+      "intakeQuestions": ["Fasting and after-meal sugar readings, A1c if known.", "Medicines such as metformin, insulin, GLP-1, or others.", "Meal timing, sweets, drinks, fruit, rice/roti quantity.", "Activity after meals, sleep, stress, weight, BP, cholesterol.", "Neuropathy, kidney, eye, foot, or heart history."],
+      "reminderScripts": ["08:00 medicine check", "13:00 lunch photo", "19:30 10-minute post-meal walk", "21:00 glucose log"],
+      "reportBlocks": ["Glucose snapshot", "Meal pattern", "Medicine adherence", "Walking and sleep", "Risk flags", "7-day diabetes plan"],
+      "dashboardMetrics": ["fasting_glucose", "post_meal_glucose", "meal_score", "medicine_adherence", "walk_after_meals"],
+      "memorySchemas": ["glucose_logs", "meal_photos", "medicine_logs", "symptom_logs", "weekly_diabetes_report"],
+      "evidenceSourceIds": ["INT-DIABETES-001", "INT-NUTRITION-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Blood pressure",
+      "aliases": ["bp", "hypertension", "high blood pressure", "low blood pressure"],
+      "protocols": [
+        {
+          "protocolId": "APP-BP-CARE-001",
+          "version": 1,
+          "title": "Blood pressure control protocol",
+          "summary": "Track BP readings, sodium, sleep, stress, activity, medicine adherence, and symptoms.",
+          "rules": ["Ask for systolic/diastolic reading, time, posture, device, and symptoms.", "Coach on sodium reduction, movement, sleep, stress, and prescribed medicine adherence.", "Do not change BP medicines without clinician involvement."]
+        }
+      ],
+      "foodRules": ["Reduce packaged salty foods, pickles, papad, chips, processed meats, and high-sodium sauces.", "Prefer potassium-rich foods only if kidney status and clinician advice allow.", "Encourage hydration and balanced meals."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-BP-001",
+          "severity": "emergency",
+          "symptomPattern": "bp 180 120 chest pain breathlessness severe headache blurred vision weakness numbness confusion",
+          "response": "Advise urgent medical care now."
+        }
+      ],
+      "intakeQuestions": ["Recent BP readings with time and symptoms.", "Medicines, missed doses, salt intake, caffeine, alcohol, smoking.", "Sleep, stress, activity, kidney, heart, diabetes, pregnancy status.", "Home BP device and measurement technique."],
+      "reminderScripts": ["Morning BP reading", "Low-sodium lunch check", "Evening walk", "Medicine reminder"],
+      "reportBlocks": ["BP trend", "Medicine adherence", "Sodium pattern", "Stress and sleep", "Risk flags", "Doctor notes"],
+      "dashboardMetrics": ["systolic", "diastolic", "salt_score", "medicine_adherence", "stress_score"],
+      "memorySchemas": ["bp_logs", "salt_logs", "medicine_logs", "symptom_flags"],
+      "evidenceSourceIds": ["INT-BP-001", "INT-HEART-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Heart health",
+      "aliases": ["cardiac", "heart", "cholesterol heart", "heart disease"],
+      "protocols": [
+        {
+          "protocolId": "APP-HEART-CARE-001",
+          "version": 1,
+          "title": "Heart health coaching protocol",
+          "summary": "Support heart-safe meals, activity boundaries, medication adherence, symptom triage, BP/cholesterol/glucose context, and reports.",
+          "rules": ["Screen chest pain and breathlessness first.", "Ask about BP, pulse, cholesterol, diabetes, smoking, family history, medicines, and exercise tolerance.", "Keep exercise advice conservative if cardiac history is unclear."]
+        }
+      ],
+      "foodRules": ["Prefer high-fiber meals, nuts/seeds in controlled amounts, legumes, vegetables, and less fried food.", "Reduce trans fat, deep-fried snacks, excess ghee/butter, processed meat, and high sodium.", "Use label scan logic for saturated fat and sodium."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-HEART-001",
+          "severity": "emergency",
+          "symptomPattern": "chest pain pressure left arm jaw sweating breathlessness fainting palpitations severe",
+          "response": "Advise emergency medical care now."
+        }
+      ],
+      "intakeQuestions": ["Symptoms, diagnosis, medicines, procedures, BP, cholesterol, diabetes.", "Family history, smoking, alcohol, activity tolerance, sleep, stress.", "Diet pattern, salt, oil, fried foods, and weight trend."],
+      "reminderScripts": ["Medicine check", "Heart-safe walk", "Low-oil meal", "Weekly heart report"],
+      "reportBlocks": ["Heart risk snapshot", "Vitals trend", "Food fat/sodium pattern", "Activity safety", "Medicine adherence", "Doctor questions"],
+      "dashboardMetrics": ["heart_score", "resting_hr", "bp_latest", "sodium_score", "activity_minutes"],
+      "memorySchemas": ["heart_symptoms", "bp_logs", "medicine_logs", "food_label_scans"],
+      "evidenceSourceIds": ["INT-HEART-001", "INT-BP-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "PCOS/PCOD",
+      "aliases": ["pcos", "pcod", "irregular periods", "cycle issue"],
+      "protocols": [
+        {
+          "protocolId": "APP-PCOS-CARE-001",
+          "version": 1,
+          "title": "PCOS metabolic and cycle support",
+          "summary": "Track cycle, cravings, acne/hair, weight, glucose risk, activity, stress, sleep, and low-glycemic nutrition.",
+          "rules": ["Ask cycle pattern, pregnancy possibility, symptoms, weight trend, insulin resistance, thyroid, and medicines.", "Support low-GI meals, protein, fiber, strength training, sleep, and stress control.", "Escalate heavy bleeding, severe pelvic pain, or pregnancy red flags."]
+        }
+      ],
+      "foodRules": ["Prefer protein breakfast, low-GI carbs, fiber, and consistent meal timing.", "Limit sugary drinks, frequent desserts, and refined-carb snacks.", "Track cravings and late eating."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-PCOS-001",
+          "severity": "urgent",
+          "symptomPattern": "severe pelvic pain heavy bleeding fainting positive pregnancy severe abdominal pain",
+          "response": "Advise urgent gynecology or emergency evaluation."
+        }
+      ],
+      "intakeQuestions": ["Cycle length, missed periods, bleeding, pain, pregnancy possibility.", "Acne, hair growth, hair fall, weight, cravings, sleep, stress.", "Thyroid, diabetes, ultrasound, medicines, fertility goals."],
+      "reminderScripts": ["Cycle log", "Protein breakfast", "Strength workout", "Sleep wind-down"],
+      "reportBlocks": ["Cycle snapshot", "Metabolic pattern", "Nutrition and cravings", "Activity and sleep", "Symptom trend", "Gynecology notes"],
+      "dashboardMetrics": ["cycle_day", "craving_score", "protein_consistency", "strength_sessions", "sleep_hours"],
+      "memorySchemas": ["cycle_logs", "symptom_logs", "meal_photos", "workouts"],
+      "evidenceSourceIds": ["INT-WOMEN-001", "INT-NUTRITION-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Thyroid",
+      "aliases": ["hypothyroid", "hyperthyroid", "thyroid"],
+      "protocols": [
+        {
+          "protocolId": "APP-THYROID-CARE-001",
+          "version": 1,
+          "title": "Thyroid routine and symptom support",
+          "summary": "Track medicine timing, labs, energy, weight, mood, sleep, heart symptoms, and nutrition consistency.",
+          "rules": ["Ask hypo/hyper type, TSH/T3/T4 if known, medicine dose/timing, symptoms, weight, pulse, and pregnancy status.", "Do not advise dose changes.", "Flag severe palpitations, chest pain, confusion, or pregnancy concerns."]
+        }
+      ],
+      "foodRules": ["Support balanced protein and fiber meals.", "Discuss supplement/medicine timing separation only as general education.", "Avoid extreme diets for thyroid weight changes."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-THYROID-001",
+          "severity": "urgent",
+          "symptomPattern": "chest pain severe palpitations confusion fever severe weakness pregnancy thyroid storm",
+          "response": "Advise urgent clinician review."
+        }
+      ],
+      "intakeQuestions": ["Thyroid type, diagnosis year, latest TSH/T3/T4, medicine and timing.", "Fatigue, weight change, heat/cold intolerance, hair fall, mood, bowel changes.", "Pregnancy, heart symptoms, other medicines, supplements."],
+      "reminderScripts": ["Morning thyroid medicine", "Lab follow-up reminder", "Energy log", "Protein breakfast"],
+      "reportBlocks": ["Thyroid snapshot", "Symptom trend", "Medicine timing", "Weight and energy", "Lab questions", "Doctor notes"],
+      "dashboardMetrics": ["energy_score", "medicine_timing", "weight_trend", "sleep_hours", "symptom_score"],
+      "memorySchemas": ["medicine_logs", "symptom_logs", "lab_values", "weight_logs"],
+      "evidenceSourceIds": ["INT-THYROID-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Pregnancy",
+      "aliases": ["pregnant", "prenatal", "antenatal"],
+      "protocols": [
+        {
+          "protocolId": "APP-PREG-CARE-001",
+          "version": 1,
+          "title": "Pregnancy wellness support",
+          "summary": "Support safe nutrition, hydration, sleep, symptom triage, appointment preparation, and medication caution.",
+          "rules": ["Ask gestational week, risk status, doctor plan, symptoms, supplements, BP, sugar, bleeding, pain, fetal movement if relevant.", "Avoid unsafe exercise, fasting, supplement, or medicine advice.", "Escalate pregnancy red flags immediately."]
+        }
+      ],
+      "foodRules": ["Focus on safe, balanced meals with protein, iron, folate, calcium, fiber, and hydration.", "Avoid unsafe foods and unverified supplements.", "If nausea exists, suggest small frequent meals and clinician review when severe."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-PREG-001",
+          "severity": "emergency",
+          "symptomPattern": "bleeding severe abdominal pain severe headache vision swelling breathlessness reduced fetal movement seizures water broke high bp",
+          "response": "Advise urgent obstetric care now."
+        }
+      ],
+      "intakeQuestions": ["Pregnancy week, singleton/twin, risk factors, doctor follow-up.", "BP, sugar, hemoglobin, thyroid, symptoms, nausea, swelling.", "Supplements, medicines, food tolerance, sleep, activity, support system."],
+      "reminderScripts": ["Prenatal vitamin", "Hydration check", "Safe meal", "Appointment questions"],
+      "reportBlocks": ["Pregnancy snapshot", "Nutrition and hydration", "Symptoms and red flags", "Vitals/labs", "Reminder plan", "OB questions"],
+      "dashboardMetrics": ["hydration_cups", "nausea_score", "sleep_hours", "supplement_adherence", "symptom_flags"],
+      "memorySchemas": ["pregnancy_symptoms", "hydration_logs", "supplement_logs", "appointment_notes"],
+      "evidenceSourceIds": ["INT-PREG-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Preconception",
+      "aliases": ["trying to conceive", "fertility", "ttc", "pre pregnancy"],
+      "protocols": [
+        {
+          "protocolId": "APP-PRECONCEPTION-CARE-001",
+          "version": 1,
+          "title": "Preconception readiness support",
+          "summary": "Support cycle tracking, folic acid reminders, lifestyle, sleep, stress, weight, chronic disease readiness, and doctor questions.",
+          "rules": ["Ask cycle pattern, TTC duration, age, partner context, medical history, medicines, folic acid, thyroid/diabetes/PCOS.", "Do not promise fertility outcomes.", "Escalate severe pain, heavy bleeding, or pregnancy emergencies."]
+        }
+      ],
+      "foodRules": ["Support balanced meals with protein, folate-rich foods, iron, fiber, and hydration.", "Reduce smoking/alcohol and ultra-processed foods.", "Support steady weight and sleep."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-PRECONCEPTION-001",
+          "severity": "urgent",
+          "symptomPattern": "severe pelvic pain heavy bleeding fainting positive pregnancy pain",
+          "response": "Advise urgent clinician review."
+        }
+      ],
+      "intakeQuestions": ["Age, cycle length, TTC duration, period pattern.", "PCOS, thyroid, diabetes, BP, medicines, folic acid.", "Sleep, stress, weight, activity, smoking/alcohol, partner testing if relevant."],
+      "reminderScripts": ["Folic acid", "Cycle log", "Sleep routine", "Fertility appointment notes"],
+      "reportBlocks": ["Readiness snapshot", "Cycle pattern", "Lifestyle plan", "Risk flags", "7-day prep plan", "Doctor questions"],
+      "dashboardMetrics": ["cycle_day", "folic_adherence", "sleep_hours", "stress_score", "activity_minutes"],
+      "memorySchemas": ["cycle_logs", "supplement_logs", "symptom_logs", "appointment_notes"],
+      "evidenceSourceIds": ["INT-WOMEN-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Postpartum",
+      "aliases": ["after delivery", "new mother", "post natal", "postpartum"],
+      "protocols": [
+        {
+          "protocolId": "APP-POSTPARTUM-CARE-001",
+          "version": 1,
+          "title": "Postpartum recovery support",
+          "summary": "Support recovery, sleep, mood, breastfeeding nutrition, hydration, pelvic symptoms, and red-flag triage.",
+          "rules": ["Ask delivery date/type, bleeding, pain, fever, mood, sleep, feeding, support, BP, diabetes, thyroid, medicines.", "Screen mood safety and heavy bleeding.", "Avoid unsafe weight-loss or exercise pressure."]
+        }
+      ],
+      "foodRules": ["Prioritize recovery meals with protein, fluids, iron, fiber, and regular snacks.", "Avoid crash dieting, especially with breastfeeding.", "Support constipation prevention with fluids and fiber."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-POSTPARTUM-001",
+          "severity": "emergency",
+          "symptomPattern": "heavy bleeding fever severe headache vision chest pain breathlessness suicidal thoughts harm baby severe abdominal pain",
+          "response": "Advise urgent postpartum medical care now."
+        }
+      ],
+      "intakeQuestions": ["Delivery date/type, stitches/C-section, bleeding, pain, fever.", "Mood, anxiety, sleep, feeding, hydration, support.", "BP, diabetes, thyroid, medicines, follow-up appointments."],
+      "reminderScripts": ["Hydration", "Meal/snack", "Mood check", "Follow-up appointment"],
+      "reportBlocks": ["Recovery snapshot", "Mood and sleep", "Nutrition/hydration", "Symptoms", "Reminder plan", "Clinician notes"],
+      "dashboardMetrics": ["recovery_score", "sleep_blocks", "hydration_cups", "mood_score", "symptom_flags"],
+      "memorySchemas": ["mood_logs", "sleep_logs", "hydration_logs", "symptom_logs"],
+      "evidenceSourceIds": ["INT-POSTPARTUM-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Digestive health",
+      "aliases": ["digestion", "constipation", "diarrhea", "gut", "stomach"],
+      "protocols": [
+        {
+          "protocolId": "APP-GUT-CARE-001",
+          "version": 1,
+          "title": "Digestive pattern support",
+          "summary": "Track meal triggers, stool pattern, pain, bloating, hydration, fiber, stress, sleep, and red flags.",
+          "rules": ["Ask location, duration, stool pattern, triggers, weight loss, fever, blood, vomiting, medicines, and stress.", "Use symptom-food log before restrictive diet suggestions.", "Escalate GI red flags."]
+        }
+      ],
+      "foodRules": ["Track spicy, fried, dairy, high-FODMAP, caffeine, alcohol, late meals, and portion size.", "Increase fluids/fiber gradually if constipation and no red flags.", "Avoid aggressive elimination diets without clinician/dietitian review."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-GUT-001",
+          "severity": "urgent",
+          "symptomPattern": "blood stool black stool severe abdominal pain persistent vomiting fever dehydration unexplained weight loss",
+          "response": "Advise medical evaluation."
+        }
+      ],
+      "intakeQuestions": ["Main symptom, duration, severity, stool pattern.", "Food triggers, meal timing, water, fiber, stress, sleep.", "Blood, fever, vomiting, weight loss, medicines, diagnosis."],
+      "reminderScripts": ["Meal trigger log", "Water check", "Fiber routine", "Symptom score"],
+      "reportBlocks": ["Gut symptom snapshot", "Trigger pattern", "Stool trend", "Hydration/fiber", "Risk flags", "Doctor notes"],
+      "dashboardMetrics": ["gut_comfort_score", "stool_pattern", "trigger_count", "water_liters", "pain_score"],
+      "memorySchemas": ["symptom_logs", "food_trigger_logs", "stool_logs", "hydration_logs"],
+      "evidenceSourceIds": ["INT-GUT-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Acidity and bloating",
+      "aliases": ["acidity", "gas", "bloating", "reflux", "heartburn"],
+      "protocols": [
+        {
+          "protocolId": "APP-ACIDITY-CARE-001",
+          "version": 1,
+          "title": "Acidity and bloating support",
+          "summary": "Track reflux/bloating triggers, meal timing, portion, late dinner, stress, sleep, and medication safety.",
+          "rules": ["Ask relation to meals, spicy/fried foods, caffeine, late dinner, bowel pattern, alarm symptoms, and medicine use.", "Suggest smaller meals, earlier dinner, trigger log, walking, hydration, and clinician review if persistent.", "Escalate chest pain or GI bleeding."]
+        }
+      ],
+      "foodRules": ["Reduce late heavy dinners, fried/spicy food, carbonated drinks, excess tea/coffee, and large portions.", "Try smaller meals and gentle walking after food.", "Use food trigger history before removing many foods."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-ACIDITY-001",
+          "severity": "urgent",
+          "symptomPattern": "chest pain black stool vomiting blood trouble swallowing weight loss severe pain",
+          "response": "Advise urgent medical review."
+        }
+      ],
+      "intakeQuestions": ["Burning, bloating, gas, pain location and timing.", "Late dinner, tea/coffee, spicy/fried food, milk, stress, sleep.", "Vomiting, blood, weight loss, swallowing trouble, medicines."],
+      "reminderScripts": ["Early dinner", "Trigger log", "Post-meal walk", "Water check"],
+      "reportBlocks": ["Acidity/bloating snapshot", "Trigger foods", "Meal timing", "Symptom trend", "7-day relief plan", "Doctor notes"],
+      "dashboardMetrics": ["bloating_score", "reflux_score", "late_meal_count", "trigger_foods", "water_liters"],
+      "memorySchemas": ["trigger_logs", "symptom_logs", "meal_timing_logs"],
+      "evidenceSourceIds": ["INT-GUT-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Sleep health",
+      "aliases": ["sleep", "insomnia", "snoring", "poor sleep"],
+      "protocols": [
+        {
+          "protocolId": "APP-SLEEP-CARE-001",
+          "version": 1,
+          "title": "Sleep improvement protocol",
+          "summary": "Track sleep timing, screen/caffeine, stress, naps, snoring, breathing risk, mood, and habit plan.",
+          "rules": ["Ask bed/wake time, sleep latency, awakenings, caffeine, screen, naps, snoring, mood, pain, medicines.", "Coach consistent wake time, light exposure, caffeine cutoff, wind-down, and sleep log.", "Escalate severe sleepiness with breathing pauses or safety risk."]
+        }
+      ],
+      "foodRules": ["Limit late caffeine and heavy late meals.", "Keep hydration earlier in evening if night urination interrupts sleep.", "Use calming routine instead of alcohol as sleep aid."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-SLEEP-001",
+          "severity": "clinician",
+          "symptomPattern": "stop breathing choking at night severe daytime sleepiness driving sleep suicidal thoughts",
+          "response": "Advise clinician review and safety precautions."
+        }
+      ],
+      "intakeQuestions": ["Bedtime, wake time, latency, awakenings, naps.", "Caffeine, screens, exercise, stress, pain, medicines.", "Snoring, breathing pauses, morning headache, daytime sleepiness."],
+      "reminderScripts": ["Caffeine cutoff", "Screen wind-down", "Sleep log", "Morning light"],
+      "reportBlocks": ["Sleep snapshot", "Habit triggers", "Sleep quality trend", "Risk flags", "7-day wind-down plan", "Clinician notes"],
+      "dashboardMetrics": ["sleep_hours", "sleep_quality", "caffeine_cutoff", "screen_time", "daytime_sleepiness"],
+      "memorySchemas": ["sleep_logs", "caffeine_logs", "mood_logs", "screen_logs"],
+      "evidenceSourceIds": ["INT-SLEEP-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Stress and mood",
+      "aliases": ["stress", "anxiety", "mood", "depression", "mental wellness"],
+      "protocols": [
+        {
+          "protocolId": "APP-MOOD-CARE-001",
+          "version": 1,
+          "title": "Stress and mood support",
+          "summary": "Support mood check-ins, stress triggers, sleep, breathing, routine, social support, and safety triage.",
+          "rules": ["Ask mood score, anxiety, triggers, sleep, appetite, energy, work/family stress, support, and safety.", "Use grounding, breathing, task breakdown, sleep, movement, and support planning.", "Escalate self-harm or harm-to-others language immediately."]
+        }
+      ],
+      "foodRules": ["Support steady meals, hydration, caffeine moderation, and reduced alcohol.", "Avoid shaming about emotional eating; use trigger planning.", "Link sleep and stress eating patterns."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-MOOD-001",
+          "severity": "emergency",
+          "symptomPattern": "suicidal self harm kill myself harm others overdose hopeless no reason to live",
+          "response": "Advise urgent crisis support or emergency help now."
+        }
+      ],
+      "intakeQuestions": ["Mood, anxiety, stress score, triggers, duration.", "Sleep, appetite, energy, focus, panic, support system.", "Any self-harm thoughts, substance use, therapy/medicine history."],
+      "reminderScripts": ["Breathing break", "Mood log", "Walk outside", "Sleep wind-down"],
+      "reportBlocks": ["Mood snapshot", "Trigger pattern", "Sleep and appetite", "Coping plan", "Safety notes", "Clinician questions"],
+      "dashboardMetrics": ["mood_score", "stress_score", "sleep_hours", "breathing_sessions", "support_check"],
+      "memorySchemas": ["mood_logs", "trigger_logs", "sleep_logs", "coping_actions"],
+      "evidenceSourceIds": ["INT-MOOD-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Fitness",
+      "aliases": ["workout", "exercise", "strength", "gym", "running"],
+      "protocols": [
+        {
+          "protocolId": "APP-FITNESS-CARE-001",
+          "version": 1,
+          "title": "Fitness plan builder",
+          "summary": "Build safe, progressive workouts from goals, injuries, equipment, time, sleep, nutrition, and recovery.",
+          "rules": ["Ask goal, current level, injuries, equipment, available time, medical limits, and recovery.", "Use progressive overload conservatively.", "Escalate chest pain, fainting, severe shortness of breath, or acute injury."]
+        }
+      ],
+      "foodRules": ["Align protein, hydration, and carbs with workout goal.", "Avoid extreme pre-workout or fasting advice if medical risks exist.", "Support recovery meals and sleep."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-FITNESS-001",
+          "severity": "urgent",
+          "symptomPattern": "chest pain fainting severe breathlessness severe injury swelling deformity",
+          "response": "Advise stopping exercise and getting medical evaluation."
+        }
+      ],
+      "intakeQuestions": ["Goal, current training, steps, strength level.", "Injuries, pain, medical limits, equipment, time.", "Sleep, nutrition, hydration, recovery, preferred workout style."],
+      "reminderScripts": ["Workout session", "Steps target", "Stretch/mobility", "Protein meal"],
+      "reportBlocks": ["Fitness snapshot", "Strength/cardio plan", "Recovery", "Nutrition support", "Injury cautions", "7-day plan"],
+      "dashboardMetrics": ["steps", "workout_sessions", "recovery_score", "protein_consistency", "pain_score"],
+      "memorySchemas": ["workout_logs", "steps_logs", "pain_logs", "recovery_logs"],
+      "evidenceSourceIds": ["INT-FITNESS-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Skin and hair",
+      "aliases": ["skin", "hair", "acne", "hair fall", "dandruff"],
+      "protocols": [
+        {
+          "protocolId": "APP-SKINHAIR-CARE-001",
+          "version": 1,
+          "title": "Skin and hair habit support",
+          "summary": "Track skin/hair symptoms, routine, sleep, stress, diet, cycle, thyroid, deficiencies, and dermatology red flags.",
+          "rules": ["Ask symptom type, duration, triggers, products, medicines, cycle, thyroid, diet, sleep, stress.", "Avoid prescription skincare or steroid advice.", "Escalate severe allergic reaction, infection, or sudden hair loss with systemic symptoms."]
+        }
+      ],
+      "foodRules": ["Support protein, iron-rich foods, hydration, and steady sleep.", "Track dairy/sugar/fried food only if the user notices a pattern.", "Avoid extreme supplements without labs/clinician review."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-SKINHAIR-001",
+          "severity": "urgent",
+          "symptomPattern": "swollen face trouble breathing severe rash fever pus painful infection sudden patch hair loss",
+          "response": "Advise urgent clinician review."
+        }
+      ],
+      "intakeQuestions": ["Main concern, duration, photos if available, products.", "Diet, sleep, stress, water, cycle, thyroid, deficiencies.", "Itching, pain, pus, fever, allergies, medicines."],
+      "reminderScripts": ["Routine check", "Water", "Sleep wind-down", "Photo progress"],
+      "reportBlocks": ["Skin/hair snapshot", "Routine pattern", "Nutrition and sleep", "Trigger notes", "Progress photos", "Dermatology questions"],
+      "dashboardMetrics": ["hydration_cups", "sleep_hours", "symptom_score", "routine_adherence", "stress_score"],
+      "memorySchemas": ["photo_progress", "routine_logs", "symptom_logs", "diet_trigger_logs"],
+      "evidenceSourceIds": ["INT-SKIN-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "General wellness",
+      "aliases": ["wellness", "healthy routine", "general health"],
+      "protocols": [
+        {
+          "protocolId": "APP-WELLNESS-CARE-001",
+          "version": 1,
+          "title": "General wellness protocol",
+          "summary": "Build a balanced routine around sleep, food, water, movement, mood, prevention, reminders, and weekly reports.",
+          "rules": ["Ask goals, routine, sleep, meals, water, stress, activity, medicines, allergies, and screenings.", "Keep advice broad, safe, and measurable.", "Escalate red flags from common safety rules."]
+        }
+      ],
+      "foodRules": ["Use balanced plate: protein, vegetables, whole grains or legumes, healthy fats, and water.", "Reduce sugary drinks, frequent junk food, and late heavy meals.", "Use meal photos for habit feedback."],
+      "safetyRules": [],
+      "intakeQuestions": ["Main goal, daily routine, meal timing, water, sleep.", "Activity, stress, mood, medicines, allergies, family history.", "Preventive checks, health concerns, reminder preferences."],
+      "reminderScripts": ["Water", "Walk", "Meal photo", "Sleep routine"],
+      "reportBlocks": ["Wellness snapshot", "Meals", "Movement", "Sleep/stress", "Reminder plan", "7-day plan"],
+      "dashboardMetrics": ["wellness_score", "water_liters", "steps", "sleep_hours", "stress_score"],
+      "memorySchemas": ["daily_logs", "meal_photos", "sleep_logs", "reminders"],
+      "evidenceSourceIds": ["INT-WELLNESS-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Women's wellness",
+      "aliases": ["women health", "cycle wellness", "period health"],
+      "protocols": [
+        {
+          "protocolId": "APP-WOMEN-CARE-001",
+          "version": 1,
+          "title": "Women's wellness protocol",
+          "summary": "Support cycle, cramps, energy, mood, sleep, nutrition, anemia risk, reproductive goals, and gynecology red flags.",
+          "rules": ["Ask age, cycle pattern, bleeding, pain, pregnancy possibility, contraception, anemia, thyroid, PCOS, mood, and goals.", "Escalate heavy bleeding, severe pain, pregnancy emergencies, and fainting."]
+        }
+      ],
+      "foodRules": ["Support iron-rich foods, protein, hydration, and cycle-aware meals.", "Track sugar/caffeine/salt cravings around cycle.", "Avoid unverified hormone or supplement advice."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-WOMEN-001",
+          "severity": "urgent",
+          "symptomPattern": "heavy bleeding severe pelvic pain fainting positive pregnancy shoulder pain fever",
+          "response": "Advise urgent gynecology or emergency care."
+        }
+      ],
+      "intakeQuestions": ["Cycle length, bleeding, pain, PMS, pregnancy possibility.", "Energy, anemia history, thyroid, PCOS, contraception, fertility goals.", "Food cravings, sleep, stress, activity."],
+      "reminderScripts": ["Cycle log", "Iron/protein meal", "Hydration", "Symptom check"],
+      "reportBlocks": ["Cycle snapshot", "Symptoms", "Nutrition", "Mood/sleep", "Risk flags", "Gynecology notes"],
+      "dashboardMetrics": ["cycle_day", "pain_score", "energy_score", "hydration_cups", "mood_score"],
+      "memorySchemas": ["cycle_logs", "symptom_logs", "mood_logs", "nutrition_logs"],
+      "evidenceSourceIds": ["INT-WOMEN-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Senior care",
+      "aliases": ["elder care", "aged care", "senior health"],
+      "protocols": [
+        {
+          "protocolId": "APP-SENIOR-CARE-001",
+          "version": 1,
+          "title": "Senior care support",
+          "summary": "Support medicines, hydration, falls, meals, mobility, sleep, mood, memory, caregiver notes, and doctor-ready reports.",
+          "rules": ["Ask age, diagnoses, medicines, falls, memory, mobility, appetite, hydration, caregiver, and emergency contacts.", "Prioritize fall, confusion, chest pain, breathlessness, stroke, dehydration, and medicine safety."]
+        }
+      ],
+      "foodRules": ["Support protein, hydration, fiber, easy-to-chew meals if needed.", "Watch low appetite, swallowing issues, constipation, and diabetes/BP limits.", "Coordinate diet restrictions with clinician advice."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-SENIOR-001",
+          "severity": "urgent",
+          "symptomPattern": "fall head injury confusion delirium chest pain breathlessness stroke dehydration unable to stand",
+          "response": "Advise urgent care and caregiver involvement."
+        }
+      ],
+      "intakeQuestions": ["Diagnoses, medicines, allergies, mobility, falls.", "Eating, water, sleep, mood, memory, pain, caregiver support.", "Emergency contact and doctor follow-up."],
+      "reminderScripts": ["Medicine reminder", "Water", "Walk/mobility", "Caregiver check-in"],
+      "reportBlocks": ["Care snapshot", "Medicine adherence", "Falls and mobility", "Nutrition/hydration", "Risk flags", "Caregiver notes"],
+      "dashboardMetrics": ["medicine_adherence", "hydration_cups", "fall_risk", "mobility_score", "appetite_score"],
+      "memorySchemas": ["medicine_logs", "fall_logs", "hydration_logs", "caregiver_notes"],
+      "evidenceSourceIds": ["INT-SENIOR-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Sexual health",
+      "aliases": ["sexual", "private health", "sti", "ed", "libido", "period sex"],
+      "protocols": [
+        {
+          "protocolId": "APP-SEXUAL-CARE-001",
+          "version": 1,
+          "title": "Private sexual health support",
+          "summary": "Provide confidential intake, symptom triage, consent/safety boundaries, STI risk education, lifestyle context, and referral prompts.",
+          "rules": ["Use private, non-judgmental language.", "Ask sex assigned at birth, age bracket, symptoms, duration, pain, discharge, bleeding, pregnancy risk, STI exposure, contraception, medications, diabetes/BP, stress, relationship safety, and consent concerns.", "Do not diagnose STI or prescribe treatment; advise testing/clinician when risk or symptoms exist."]
+        }
+      ],
+      "foodRules": ["Support sleep, stress reduction, exercise, diabetes/BP control, and alcohol/smoking reduction for sexual wellness.", "Avoid fake aphrodisiac claims.", "Link sexual symptoms to medicines, diabetes, BP, hormones, mood, and relationship stress where relevant."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-SEXUAL-001",
+          "severity": "urgent",
+          "symptomPattern": "sexual assault forced unsafe partner severe pelvic pain testicular pain priapism erection 4 hours pregnancy bleeding fever discharge severe pain",
+          "response": "Advise urgent medical, sexual assault, or emergency care depending on the symptom."
+        }
+      ],
+      "intakeQuestions": ["Main private concern and duration.", "Pain, discharge, sores, bleeding, fever, urinary symptoms, pregnancy risk.", "STI exposure, contraception, partner safety, consent concern.", "Medicines, diabetes, BP, stress, sleep, alcohol/smoking.", "Testing history and comfort with doctor referral."],
+      "reminderScripts": ["Private symptom log", "Doctor/testing reminder", "Stress/sleep check", "Medicine review question"],
+      "reportBlocks": ["Private concern snapshot", "Symptoms and risk flags", "Lifestyle and medicine context", "Testing/referral plan", "Safety notes", "Doctor questions"],
+      "dashboardMetrics": ["private_symptom_score", "risk_flag_count", "stress_score", "sleep_hours", "referral_needed"],
+      "memorySchemas": ["private_symptom_logs", "risk_context", "testing_history", "referral_notes"],
+      "evidenceSourceIds": ["INT-SEXUAL-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Autoimmune support",
+      "aliases": ["autoimmune", "lupus", "rheumatoid", "flare", "inflammation"],
+      "protocols": [
+        {
+          "protocolId": "APP-AUTOIMMUNE-CARE-001",
+          "version": 1,
+          "title": "Autoimmune flare support",
+          "summary": "Track flares, fatigue, pain, sleep, stress, medicines, infections, triggers, pacing, and doctor-ready summaries.",
+          "rules": ["Ask diagnosis, medicines, flare pattern, pain/fatigue, fever/infection signs, sleep, stress, activity pacing, and labs if known.", "Do not advise stopping immunosuppressants or steroids.", "Escalate infection, chest pain, neurologic symptoms, severe weakness, or pregnancy concerns."]
+        }
+      ],
+      "foodRules": ["Use anti-inflammatory style meals as supportive habits, not a cure.", "Track personal food triggers without over-restriction.", "Prioritize protein, fiber, hydration, and medication-safe nutrition."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-AUTOIMMUNE-001",
+          "severity": "urgent",
+          "symptomPattern": "fever infection chest pain breathlessness new weakness confusion severe flare steroid stop pregnancy",
+          "response": "Advise clinician review urgently."
+        }
+      ],
+      "intakeQuestions": ["Diagnosis, medicines, flares, pain/fatigue score.", "Fever/infection, labs, doctor follow-up, pregnancy.", "Sleep, stress, pacing, food triggers, activity tolerance."],
+      "reminderScripts": ["Medicine check", "Pacing break", "Flare log", "Sleep routine"],
+      "reportBlocks": ["Flare snapshot", "Pain/fatigue trend", "Medicine and triggers", "Sleep/stress", "Risk flags", "Doctor notes"],
+      "dashboardMetrics": ["flare_score", "fatigue_score", "pain_score", "sleep_hours", "medicine_adherence"],
+      "memorySchemas": ["flare_logs", "pain_logs", "medicine_logs", "trigger_logs"],
+      "evidenceSourceIds": ["INT-AUTOIMMUNE-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Cholesterol",
+      "aliases": ["lipids", "ldl", "triglycerides", "cholesterol"],
+      "protocols": [
+        {
+          "protocolId": "APP-LIPID-CARE-001",
+          "version": 1,
+          "title": "Cholesterol lifestyle support",
+          "summary": "Track LDL/TG/HDL if known, food fat/fiber pattern, weight, activity, diabetes/BP, medicine adherence, and family risk.",
+          "rules": ["Ask lipid values, family history, diabetes/BP, smoking, weight, diet, activity, and medicines.", "Support fiber, unsaturated fats, fewer fried/trans fats, movement, and clinician medicine adherence.", "Escalate chest pain and heart symptoms."]
+        }
+      ],
+      "foodRules": ["Increase soluble fiber sources, vegetables, legumes, oats if suitable, nuts/seeds in controlled portions.", "Reduce trans fats, fried snacks, bakery items, processed meats, excess ghee/butter.", "Use food label scan for saturated fat and trans fat."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-LIPID-001",
+          "severity": "emergency",
+          "symptomPattern": "chest pain breathlessness left arm jaw sweating fainting",
+          "response": "Advise emergency care now."
+        }
+      ],
+      "intakeQuestions": ["LDL, HDL, TG, total cholesterol if known.", "Family heart history, BP, diabetes, smoking, medicines.", "Oil/fried foods, fiber, weight, steps, workouts."],
+      "reminderScripts": ["Fiber meal", "Walk", "Food label check", "Medicine reminder"],
+      "reportBlocks": ["Lipid snapshot", "Food fat/fiber pattern", "Activity", "Risk flags", "7-day heart plan", "Doctor notes"],
+      "dashboardMetrics": ["fat_score", "fiber_score", "steps", "weight_trend", "medicine_adherence"],
+      "memorySchemas": ["food_label_logs", "activity_logs", "lab_values", "medicine_logs"],
+      "evidenceSourceIds": ["INT-LIPID-001", "INT-HEART-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Habit reset",
+      "aliases": ["habits", "addiction", "smoking", "alcohol", "junk food", "craving"],
+      "protocols": [
+        {
+          "protocolId": "APP-HABIT-CARE-001",
+          "version": 1,
+          "title": "Habit reset coaching",
+          "summary": "Build cue-craving-response plans, replacement routines, relapse recovery, reminders, and progress tracking.",
+          "rules": ["Ask target habit, frequency, triggers, time/place, cravings, support, withdrawal symptoms, mood, and safety.", "Use tiny replacement actions and relapse plan.", "Escalate severe withdrawal, overdose, self-harm, or unsafe substance use."]
+        }
+      ],
+      "foodRules": ["For food cravings, use protein/fiber meals, planned snacks, hydration, and sleep support.", "Avoid shame and all-or-nothing framing.", "For alcohol/substance habits, keep nutrition secondary to safety and clinician support."],
+      "safetyRules": [
+        {
+          "ruleId": "SAFE-HABIT-001",
+          "severity": "urgent",
+          "symptomPattern": "withdrawal seizure overdose suicidal severe tremor hallucination alcohol withdrawal",
+          "response": "Advise urgent medical support."
+        }
+      ],
+      "intakeQuestions": ["Habit to change, frequency, triggers, best/worst time.", "Craving strength, past attempts, support, mood, sleep.", "Withdrawal symptoms, substance amount if relevant, safety risk."],
+      "reminderScripts": ["Craving check", "Replacement action", "Evening reset", "Progress streak"],
+      "reportBlocks": ["Habit snapshot", "Trigger map", "Replacement plan", "Streak trend", "Relapse recovery", "Support notes"],
+      "dashboardMetrics": ["streak_days", "craving_score", "replacement_actions", "sleep_hours", "risk_flags"],
+      "memorySchemas": ["habit_logs", "craving_events", "replacement_actions", "relapse_notes"],
+      "evidenceSourceIds": ["INT-HABIT-001", "INT-SAFETY-001"]
+    },
+    {
+      "condition": "Other problem",
+      "aliases": ["custom health", "other", "unknown"],
+      "protocols": [
+        {
+          "protocolId": "APP-CUSTOM-CARE-001",
+          "version": 1,
+          "title": "Custom health intake protocol",
+          "summary": "Use structured intake, red-flag triage, symptom patterning, routine analysis, and doctor-ready report generation for a user-defined problem.",
+          "rules": ["Clarify the exact problem first.", "Ask onset, duration, severity, location, triggers, medicines, allergies, diagnosis, family history, and red flags.", "Use common safety rules before any coaching."]
+        }
+      ],
+      "foodRules": ["Only give diet advice after understanding the condition.", "If symptoms relate to meals, start food and symptom logging.", "Avoid restrictive advice without a clear reason."],
+      "safetyRules": [],
+      "intakeQuestions": ["What exact problem should Flicko help with?", "When did it start and what makes it better or worse?", "Any red-flag symptoms, diagnosis, medicines, allergies, or lab reports?", "What is the first 7-day goal?"],
+      "reminderScripts": ["Daily symptom log", "Medicine reminder if applicable", "Photo/report upload", "Follow-up question"],
+      "reportBlocks": ["Custom snapshot", "Symptom pattern", "Routine context", "Risk flags", "7-day action plan", "Doctor questions"],
+      "dashboardMetrics": ["custom_score", "symptom_score", "habit_adherence", "risk_flags", "followup_needed"],
+      "memorySchemas": ["custom_symptom_logs", "routine_logs", "report_uploads", "doctor_notes"],
+      "evidenceSourceIds": ["INT-CUSTOM-001", "INT-SAFETY-001"]
+    }
+  ]
+}
